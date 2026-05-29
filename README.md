@@ -27,41 +27,51 @@ apply (you confirm)           →  tracker: Stage 4 (Applied)
 
 ## Install as a Claude Code skill
 
-Copy the skill folder into your Claude Code skills directory:
+**The whole repo is the skill.** Clone it straight into your Claude Code skills directory:
 
 ```bash
 # macOS / Linux
-cp -r .claude/skills/career-ops ~/.claude/skills/
+git clone https://github.com/marz1307/career-ops ~/.claude/skills/career-ops
+cd ~/.claude/skills/career-ops && npm install
 
 # Windows (PowerShell)
-Copy-Item -Recurse .claude/skills/career-ops $env:USERPROFILE\.claude\skills\
+git clone https://github.com/marz1307/career-ops $env:USERPROFILE\.claude\skills\career-ops
+cd $env:USERPROFILE\.claude\skills\career-ops; npm install
 ```
 
-Then in any Claude Code session, type:
+That's it. The clone *is* the engine — `SKILL.md`, modes, templates, scripts, and node deps all live there. You never need to clone again.
 
-```
-/career-ops
+### Use it
+
+Pick a folder you want to be your **workspace** (where your CV, profile, applications tracker, and generated PDFs will live), then in any Claude Code session:
+
+```bash
+cd ~/career-ops-workspace     # or any folder you like
+claude                        # start Claude Code
+/career-ops                   # invoke the skill
 ```
 
 On first run the skill will:
 
-1. Ask you to upload (or paste a path to) your CV.
-2. Ask for your LinkedIn URL.
-3. Ask for your portfolio URL (optional).
-4. Ask which **job markets** you're targeting (UK / EU / US / Remote / multi-select).
-5. Ask for your **target roles** (you list them, or it infers from your CV).
-6. Ask for your Bright Data API key (powers LinkedIn / Indeed / Glassdoor scraping).
-7. Ask for your Notion integration token + parent page URL, then **auto-creates** an Applications database with the canonical schema and three dashboard views (Pipeline board, By score, Active interviews).
-8. Ask **what time of day** you want the recurring scan to run (07:00 / 12:30 / 18:00 / custom / off) and registers it via `/schedule`.
-9. Generates your `config/profile.yml`, `cv.md`, `portals.yml`, and `.env` from the templates.
+1. Confirm the workspace folder (defaults to your current directory).
+2. Ask you to upload (or paste a path to) your CV.
+3. Ask for your LinkedIn URL.
+4. Ask for your portfolio URL (optional).
+5. Ask which **job markets** you're targeting (UK / EU / US / Remote / multi-select).
+6. Ask for your **target roles** (you list them, or it infers from your CV).
+7. Ask for your Bright Data API key (powers LinkedIn / Indeed / Glassdoor scraping).
+8. Ask for your Notion integration token + parent page URL, then **auto-creates** an Applications database with the canonical schema and three dashboard views (Pipeline board, By score, Active interviews).
+9. Ask **what time of day** you want the recurring scan to run (07:00 / 12:30 / 18:00 / custom / off) and registers it via `/schedule`.
+10. Bootstraps `config/profile.yml`, `cv.md`, `portals.yml`, `modes/_profile.md`, and `.env` in your workspace from the engine's templates.
 
-After that, you can paste a JD URL, run `/career-ops scan`, draft tailored CVs, or invoke any of the modes listed below.
+After that, paste a JD URL, run `/career-ops scan`, draft tailored CVs, or invoke any of the modes listed below — all from the same workspace folder.
 
 ## How it's wired
 
 | Layer | File | Notes |
 |-------|------|-------|
-| Agent brain | [`CLAUDE.md`](CLAUDE.md) + [`AGENTS.md`](AGENTS.md) | Routing, ethical rules, mode index |
+| Slash-command entry | [`SKILL.md`](SKILL.md) | Marketplace skill manifest — drives `/career-ops` and the onboarding flow |
+| Agent brain | [`CLAUDE.md`](CLAUDE.md) + [`AGENTS.md`](AGENTS.md) | Routing, ethical rules, mode index (developer reference) |
 | Your config | [`config/profile.example.yml`](config/profile.example.yml) + [`modes/_profile.template.md`](modes/_profile.template.md) | Identity, archetypes, scoring weights, comp targets, writing style |
 | Your CV | `cv.md` (created on first run) | Canonical CV — mirrors whatever PDF you publish |
 | Proof points | `article-digest.md` (created on first run) | Projects, case studies, deeper evidence than the CV |
