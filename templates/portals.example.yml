@@ -1,0 +1,617 @@
+# Portal Scanner Configuration — Example
+#
+# Copy this file to portals.yml in the project root and customize.
+# Used by /career-ops scan to discover new offers automatically.
+#
+# Strategy (4 levels):
+#   0. Local parser → per-company `parser:` script for SSR/static career pages (zero-token)
+#   1. Playwright → careers_url of each company (real-time, reliable)
+#   2. HTTP JSON (WebFetch) → per-company `api:` field
+#   3. WebSearch / Bright Data SERP with site: filters (broad discovery, may be stale)
+#
+# IMPORTANT: Each company in tracked_companies MUST have careers_url.
+#   Prefer the BRANDED company careers URL whenever available; use ATS-hosted URL only as fallback.
+#   ✅ https://careers.acme.com         ⚠️ https://acme.wd1.myworkdayjobs.com (fallback only)
+#   ✅ https://openai.com/careers       ⚠️ https://job-boards.greenhouse.io/openai (fallback only)
+#
+# HOW TO CUSTOMIZE:
+#   1. Copy this file to portals.yml in the project root
+#   2. Edit title_filter.positive with YOUR target role keywords
+#   3. Add/remove companies in tracked_companies
+#   4. Adjust search_queries for your preferred job boards
+#   5. Set enabled: false on companies you don't care about
+
+# -- Location filter (optional) --
+# Filter scanned jobs by location. Applied AFTER title filter, BEFORE dedup.
+# If absent, all locations pass.
+#
+# Semantics (case-insensitive substring, in order):
+#   - Empty location string on a job → pass
+#   - Any `always_allow` keyword present → pass (takes precedence over `block`)
+#   - Any `block` keyword present → reject
+#   - `allow` empty → pass (already cleared block)
+#   - `allow` non-empty → must match at least one keyword
+#
+# Example below targets UK + EU-broad remote. Customize to your geography.
+
+# location_filter:
+#   always_allow:
+#     - "United Kingdom"
+#     - "London"
+#   allow:
+#     - "Remote"
+#     - "Hybrid"
+#     - "United Kingdom"
+#     - "UK"
+#     - "EMEA"
+#     - "Europe"
+#     - "EU"
+#     - "Netherlands"
+#     - "Amsterdam"
+#     - "Ireland"
+#     - "Dublin"
+#     - "France"
+#     - "Paris"
+#     - "Spain"
+#     - "Madrid"
+#     - "Barcelona"
+#     - "Portugal"
+#     - "Lisbon"
+#     - "Sweden"
+#     - "Denmark"
+#   block:
+#     - "India"
+#     - "Bengaluru"
+#     - "Hyderabad"
+#     - "Singapore"
+#     - "Hong Kong"
+#     - "Tokyo"
+#     - "Brazil"
+#     - "Australia"
+
+# -- Title filter --
+# At least 1 positive must match AND 0 negatives must match (case-insensitive).
+# [CUSTOMIZE] Replace these with YOUR target role keywords.
+
+title_filter:
+  positive:
+    # -- AI / ML roles --
+    - "AI Engineer"
+    - "ML Engineer"
+    - "Machine Learning Engineer"
+    - "LLM Engineer"
+    - "Applied Scientist"
+    - "Applied AI"
+    - "Agent"
+    - "Agentic"
+    - "GenAI"
+    - "Generative AI"
+    - "NLP"
+    - "LLMOps"
+    - "MLOps"
+    # -- Data roles --
+    - "Data Engineer"
+    - "Analytics Engineer"
+    - "Data Scientist"
+    - "Data Analyst"
+    - "BI Engineer"
+    - "BI Analyst"
+    - "Business Intelligence Engineer"
+    # -- Engineering roles --
+    - "Backend Engineer"
+    - "Platform Engineer"
+    - "Solutions Architect"
+    - "Solutions Engineer"
+    - "Forward Deployed"
+    - "Deployed Engineer"
+    - "Customer Engineer"
+    - "Integration Engineer"
+    # -- Product roles --
+    - "Product Manager"
+    - "Technical PM"
+    - "AI Product Manager"
+  negative:
+    # Below mid-level
+    - "Intern"
+    - "Internship"
+    - "Apprentice"
+    - "Trainee"
+    # Wrong-tech / wrong-domain noise
+    - ".NET"
+    - "C#"
+    - "iOS"
+    - "Android"
+    - "PHP"
+    - "Ruby on Rails"
+    - "Embedded"
+    - "Firmware"
+    - "FPGA"
+    - "ASIC"
+    - "Blockchain"
+    - "Web3"
+    - "Crypto"
+    - "Solidity"
+    - "Salesforce Admin"
+    - "Salesforce Developer"
+    - "Oracle EBS"
+    - "Mainframe"
+    - "COBOL"
+  seniority_boost:
+    - "Senior"
+    - "Staff"
+    - "Principal"
+    - "Lead"
+
+# -- Search queries --
+# Each query triggers a WebSearch / Bright Data SERP call.
+# Use site: to filter by portal. Remove or disable queries that don't fit your search.
+
+search_queries:
+
+  # ============================================================
+  # GLASSDOOR
+  # ============================================================
+  # Glassdoor SERP queries (free via Bright Data SERP / WebSearch).
+  # For structured job-listing extraction, use the Bright Data dataset
+  # block under `data_sources.bright_data_datasets` below.
+
+  - name: Glassdoor UK — primary
+    query: 'site:glassdoor.com/job-listing "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" United Kingdom'
+    enabled: true
+
+  - name: Glassdoor US — primary
+    query: 'site:glassdoor.com/job-listing "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" United States'
+    enabled: true
+
+  - name: Glassdoor EU — broad
+    query: 'site:glassdoor.com/job-listing "Analytics Engineer" OR "Data Scientist" Europe OR Amsterdam OR Paris OR Madrid OR Dublin'
+    enabled: true
+
+  # ============================================================
+  # LINKEDIN
+  # ============================================================
+
+  - name: LinkedIn UK — primary
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" United Kingdom'
+    enabled: true
+
+  - name: LinkedIn EMEA — broad
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" EMEA OR Europe'
+    enabled: true
+
+  - name: LinkedIn — Netherlands / Ireland
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" Amsterdam OR Dublin OR Netherlands OR Ireland'
+    enabled: true
+
+  - name: LinkedIn — Nordics
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" Stockholm OR Copenhagen OR Oslo OR Helsinki'
+    enabled: true
+
+  - name: LinkedIn — France / Benelux
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" Brussels OR Luxembourg OR Paris OR Lyon'
+    enabled: true
+
+  - name: LinkedIn — Iberia
+    query: 'site:linkedin.com/jobs "Analytics Engineer" OR "Data Scientist" Madrid OR Barcelona OR Lisbon OR Porto'
+    enabled: true
+
+  # ============================================================
+  # UK PORTALS
+  # ============================================================
+
+  - name: Reed UK — Data roles
+    query: 'site:reed.co.uk "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    enabled: true
+
+  - name: Indeed UK — primary
+    query: 'site:indeed.co.uk "Analytics Engineer" OR "Data Scientist" OR "AI Engineer"'
+    enabled: true
+
+  - name: Hays UK — Data
+    query: 'site:hays.co.uk "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    enabled: true
+
+  # ============================================================
+  # ATS-NATIVE / REMOTE-EU JOB BOARDS
+  # ============================================================
+
+  - name: Greenhouse — primary
+    query: 'site:boards.greenhouse.io OR site:job-boards.greenhouse.io "AI Engineer" OR "Analytics Engineer" OR "Data Scientist" remote'
+    enabled: true
+
+  - name: Ashby — primary
+    query: 'site:jobs.ashbyhq.com "AI Engineer" OR "Analytics Engineer" OR "Data Scientist" remote'
+    enabled: true
+
+  - name: Lever — EU
+    query: 'site:jobs.lever.co "AI Engineer" OR "Analytics Engineer" OR "Data Scientist" remote Europe'
+    enabled: true
+
+  - name: Workable — EU
+    query: 'site:apply.workable.com "AI Engineer" OR "Analytics Engineer" OR "Data Engineer" remote Europe'
+    enabled: true
+
+  - name: Welcome to the Jungle — UK / EU
+    query: 'site:welcometothejungle.com London OR Paris OR Amsterdam OR Berlin "Analytics Engineer" OR "Data Scientist" OR "AI Engineer"'
+    enabled: true
+
+  # ============================================================
+  # HANDSHAKE
+  # ============================================================
+
+  - name: Handshake — primary
+    query: 'site:joinhandshake.com "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" Europe OR UK OR remote'
+    enabled: true
+
+  # ============================================================
+  # REMOTE-FIRST BOARDS
+  # ============================================================
+
+  - name: Remotive — AI / Data
+    query: 'site:remotive.com "AI Engineer" OR "Data Scientist" OR "Analytics Engineer" OR "ML Engineer" Europe'
+    enabled: true
+
+  - name: WeWorkRemotely — AI / Data
+    query: 'site:weworkremotely.com "Data Scientist" OR "Analytics Engineer" OR "AI Engineer" OR "ML Engineer"'
+    enabled: true
+
+  - name: Working Nomads — AI / Data
+    query: 'site:workingnomads.com "AI Engineer" OR "Data Scientist" OR "Analytics Engineer"'
+    enabled: true
+
+  - name: RemoteOK — AI / Data
+    query: 'site:remoteok.com "AI Engineer" OR "Data Scientist" OR "Analytics Engineer"'
+    enabled: true
+
+  # ============================================================
+  # SPECIALISED AI / DATA BOARDS
+  # ============================================================
+
+  - name: ai-jobs.net — AI / ML
+    query: 'site:ai-jobs.net "AI Engineer" OR "ML Engineer" OR "Applied AI" remote Europe'
+    enabled: true
+
+  - name: dbt community / Slack — Analytics Engineer
+    query: '"Analytics Engineer" "dbt" "Snowflake" OR "BigQuery" remote Europe'
+    enabled: true
+
+  - name: EU Data Jobs
+    query: 'site:eudatajobs.com "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    enabled: true
+
+  - name: EU Startups — tech jobs
+    query: 'site:eu-startups.com/jobs "AI Engineer" OR "Analytics Engineer" OR "Data Scientist"'
+    enabled: true
+
+  - name: Himalayas — remote Europe
+    query: 'site:himalayas.app "Analytics Engineer" OR "Data Scientist" remote Europe'
+    enabled: true
+
+  - name: Arbeitnow — remote Europe
+    query: 'site:arbeitnow.com "Analytics Engineer" OR "Data Scientist" remote'
+    enabled: true
+
+  - name: YC Jobs — EU
+    query: 'site:workatastartup.com OR site:ycombinator.com/jobs "Analytics Engineer" OR "Data Scientist" OR "AI Engineer" Europe OR remote'
+    enabled: false
+
+# -- Tracked companies --
+# Each company is checked directly via API (Greenhouse / Ashby / Lever / Workable JSON) or chrome_scan.
+# Greenhouse boards expose JSON at https://boards-api.greenhouse.io/v1/boards/{slug}/jobs.
+# Ashby boards expose JSON at https://api.ashbyhq.com/posting-api/job-board/{slug}.
+# Lever boards expose JSON at https://api.lever.co/v0/postings/{slug}.
+
+tracked_companies:
+
+  # ============================================================
+  # GLOBAL AI LABS
+  # ============================================================
+
+  - name: Anthropic
+    careers_url: https://job-boards.greenhouse.io/anthropic
+    api: https://boards-api.greenhouse.io/v1/boards/anthropic/jobs
+    notes: "AI safety lab. SF / London / remote."
+    enabled: true
+
+  - name: OpenAI
+    careers_url: https://jobs.ashbyhq.com/openai
+    notes: "Foundation AI lab. SF / London / Dublin / remote."
+    enabled: true
+
+  - name: Mistral AI
+    careers_url: https://jobs.lever.co/mistral
+    notes: "Paris. European AI lab."
+    enabled: true
+
+  - name: Hugging Face
+    careers_url: https://apply.workable.com/huggingface/
+    scan_method: websearch
+    scan_query: 'site:apply.workable.com/huggingface "Data Scientist" OR "Data Engineer" OR "ML Engineer"'
+    notes: "Paris / NYC / Remote. ML hub & open-source models."
+    enabled: true
+
+  - name: Perplexity
+    careers_url: https://jobs.ashbyhq.com/perplexity
+    notes: "SF + remote EU. AI search."
+    enabled: true
+
+  # ============================================================
+  # UK / EU AI
+  # ============================================================
+
+  - name: ElevenLabs
+    careers_url: https://jobs.ashbyhq.com/elevenlabs
+    notes: "London / NYC / Remote. Voice AI."
+    enabled: true
+
+  - name: Stability AI
+    careers_url: https://job-boards.greenhouse.io/stabilityai
+    api: https://boards-api.greenhouse.io/v1/boards/stabilityai/jobs
+    notes: "London. Image / multimodal generative."
+    enabled: true
+
+  - name: Wayve
+    careers_url: https://job-boards.greenhouse.io/wayve
+    api: https://boards-api.greenhouse.io/v1/boards/wayve/jobs
+    notes: "London. Embodied AI for self-driving."
+    enabled: true
+
+  - name: Synthesia
+    careers_url: https://jobs.ashbyhq.com/synthesia
+    notes: "London. AI video generation for enterprise."
+    enabled: true
+
+  - name: Faculty
+    careers_url: https://jobs.ashbyhq.com/faculty
+    notes: "London. Applied AI consultancy."
+    enabled: true
+
+  - name: Speechmatics
+    careers_url: https://job-boards.greenhouse.io/speechmatics
+    api: https://boards-api.greenhouse.io/v1/boards/speechmatics/jobs
+    notes: "Cambridge UK. Speech recognition platform."
+    enabled: true
+
+  - name: Causaly
+    careers_url: https://jobs.ashbyhq.com/causaly
+    notes: "London / Athens. Biomedical knowledge graph + AI."
+    enabled: true
+
+  - name: Glean
+    careers_url: https://job-boards.greenhouse.io/gleanwork
+    api: https://boards-api.greenhouse.io/v1/boards/gleanwork/jobs
+    notes: "Palo Alto + remote EU. Enterprise search + RAG."
+    enabled: true
+
+  # ============================================================
+  # FINTECH / PAYMENTS
+  # ============================================================
+
+  - name: Monzo
+    careers_url: https://job-boards.greenhouse.io/monzo
+    api: https://boards-api.greenhouse.io/v1/boards/monzo/jobs
+    notes: "London. Mobile bank. Strong analytics function."
+    enabled: true
+
+  - name: Revolut
+    careers_url: https://www.revolut.com/careers
+    scan_method: chrome_scan
+    scan_query: 'site:revolut.com/careers "Data Scientist" OR "Analytics Engineer"'
+    notes: "London. Fintech unicorn."
+    enabled: true
+
+  - name: Stripe
+    careers_url: https://job-boards.greenhouse.io/stripe
+    api: https://boards-api.greenhouse.io/v1/boards/stripe/jobs
+    notes: "Dublin EU HQ. Payments giant. Filter heavily for EU roles."
+    enabled: true
+
+  - name: Adyen
+    careers_url: https://job-boards.greenhouse.io/adyen
+    api: https://boards-api.greenhouse.io/v1/boards/adyen/jobs
+    notes: "Amsterdam HQ. Global payments."
+    enabled: true
+
+  - name: GoCardless
+    careers_url: https://job-boards.greenhouse.io/gocardless
+    api: https://boards-api.greenhouse.io/v1/boards/gocardless/jobs
+    notes: "London / Paris. Recurring-payment infra."
+    enabled: true
+
+  - name: Pleo
+    careers_url: https://job-boards.greenhouse.io/pleo
+    api: https://boards-api.greenhouse.io/v1/boards/pleo/jobs
+    notes: "Copenhagen / London. Spend management."
+    enabled: true
+
+  - name: SumUp
+    careers_url: https://job-boards.greenhouse.io/sumup
+    api: https://boards-api.greenhouse.io/v1/boards/sumup/jobs
+    notes: "London / Berlin. Payments fintech."
+    enabled: true
+
+  - name: Trade Republic
+    careers_url: https://job-boards.greenhouse.io/traderepublicbank
+    api: https://boards-api.greenhouse.io/v1/boards/traderepublicbank/jobs
+    notes: "London / Paris. Neobroker, platform & data."
+    enabled: true
+
+  - name: N26
+    careers_url: https://job-boards.greenhouse.io/n26
+    api: https://boards-api.greenhouse.io/v1/boards/n26/jobs
+    notes: "Barcelona / Berlin. Mobile bank."
+    enabled: true
+
+  - name: Qonto
+    careers_url: https://jobs.lever.co/qonto
+    notes: "Paris / Barcelona / Milan. SMB neobank."
+    enabled: true
+
+  # ============================================================
+  # TRAVEL / E-COMMERCE / MARKETPLACE
+  # ============================================================
+
+  - name: Booking.com
+    careers_url: https://jobs.booking.com
+    scan_method: chrome_scan
+    scan_query: 'site:jobs.booking.com "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    notes: "Amsterdam HQ. Massive data org."
+    enabled: true
+
+  - name: Spotify
+    careers_url: https://jobs.lever.co/spotify
+    notes: "Stockholm / NYC / London. Audio platform."
+    enabled: true
+
+  - name: Klarna
+    careers_url: https://www.klarna.com/careers
+    scan_method: chrome_scan
+    scan_query: 'site:klarna.com/careers "Analytics Engineer" OR "Data Scientist"'
+    notes: "Stockholm. Payments / BNPL."
+    enabled: true
+
+  - name: GetYourGuide
+    careers_url: https://job-boards.greenhouse.io/getyourguide
+    api: https://boards-api.greenhouse.io/v1/boards/getyourguide/jobs
+    notes: "Travel marketplace. ML & data-platform roles."
+    enabled: true
+
+  - name: HelloFresh
+    careers_url: https://job-boards.greenhouse.io/hellofresh
+    api: https://boards-api.greenhouse.io/v1/boards/hellofresh/jobs
+    notes: "Meal-kit unicorn. Large data/ML org."
+    enabled: true
+
+  - name: Travelperk
+    careers_url: https://www.travelperk.com/careers
+    scan_method: websearch
+    scan_query: 'site:travelperk.com/careers "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    notes: "Barcelona. Business travel unicorn."
+    enabled: true
+
+  # ============================================================
+  # SAAS / SCALE-UPS
+  # ============================================================
+
+  - name: Personio
+    careers_url: https://www.personio.com/about-personio/careers
+    scan_method: chrome_scan
+    scan_query: 'site:personio.com "Analytics Engineer" OR "Data Scientist" OR "Data Engineer"'
+    notes: "Munich HR SaaS."
+    enabled: true
+
+  - name: Celonis
+    careers_url: https://job-boards.greenhouse.io/celonis
+    api: https://boards-api.greenhouse.io/v1/boards/celonis/jobs
+    notes: "Munich / NYC. Process intelligence."
+    enabled: true
+
+  - name: Contentful
+    careers_url: https://job-boards.greenhouse.io/contentful
+    api: https://boards-api.greenhouse.io/v1/boards/contentful/jobs
+    notes: "Berlin / Denver. Headless CMS."
+    enabled: true
+
+  - name: Pigment
+    careers_url: https://jobs.lever.co/pigment
+    notes: "Paris / NYC / London. AI-powered FP&A planning platform."
+    enabled: true
+
+  - name: n8n
+    careers_url: https://jobs.ashbyhq.com/n8n
+    notes: "Berlin. Workflow automation."
+    enabled: true
+
+  - name: Datadog
+    careers_url: https://job-boards.greenhouse.io/datadog
+    api: https://boards-api.greenhouse.io/v1/boards/datadog/jobs
+    notes: "Dublin / Paris. Observability platform."
+    enabled: true
+
+  # ============================================================
+  # DATA TOOLING (high cultural fit for AE / DS)
+  # ============================================================
+
+  - name: dbt Labs
+    careers_url: https://job-boards.greenhouse.io/dbtlabsinc
+    api: https://boards-api.greenhouse.io/v1/boards/dbtlabsinc/jobs
+    notes: "Remote. The company behind dbt."
+    enabled: true
+
+  - name: Hex
+    careers_url: https://hex.tech/careers
+    scan_method: chrome_scan
+    scan_query: 'site:hex.tech/careers "Analytics Engineer" OR "Data Scientist"'
+    notes: "Remote / SF. Notebooks + dbt-aware platform."
+    enabled: true
+
+  - name: Hightouch
+    careers_url: https://job-boards.greenhouse.io/hightouch
+    api: https://boards-api.greenhouse.io/v1/boards/hightouch/jobs
+    notes: "Data activation platform."
+    enabled: true
+
+  - name: Tinybird
+    careers_url: https://www.tinybird.co/careers
+    scan_method: websearch
+    scan_query: 'site:tinybird.co/careers "Analytics" OR "Data Engineer" OR "Data Scientist"'
+    notes: "Remote. Real-time data platform."
+    enabled: true
+
+  - name: Attio
+    careers_url: https://jobs.ashbyhq.com/attio
+    notes: "Remote EU. AI-native CRM."
+    enabled: true
+
+  - name: Sigma Computing
+    careers_url: https://job-boards.greenhouse.io/sigmacomputing
+    api: https://boards-api.greenhouse.io/v1/boards/sigmacomputing/jobs
+    notes: "SF + remote EU. Cloud BI."
+    enabled: true
+
+  - name: Fivetran
+    careers_url: https://job-boards.greenhouse.io/fivetran
+    api: https://boards-api.greenhouse.io/v1/boards/fivetran/jobs
+    notes: "Oakland + EU offices. Data ingestion."
+    enabled: true
+
+  # ============================================================
+  # REMOTE-FRIENDLY GENERAL JOB BOARDS (via API)
+  # ============================================================
+
+  - name: Arbeitnow
+    careers_url: https://www.arbeitnow.com/
+    api: https://www.arbeitnow.com/api/job-board-api
+    notes: "Public REST API, 100 jobs/page. Remote-friendly EU board."
+    enabled: true
+
+# -- Bright Data datasets --
+# For structured job-listing extraction from portals that block standard
+# scraping (Glassdoor, LinkedIn, Indeed), call the Bright Data Datasets API
+# with a job-listing dataset ID. The scanner posts a batch of JD URLs to
+# the endpoint and reads back parsed records.
+#
+# Auth: bearer token read from `BRIGHTDATA_API_KEY` in `.env` — NEVER inline
+# the token here. The example below uses an environment-variable placeholder.
+#
+# Reference (do NOT paste your key here):
+#   curl -H "Authorization: Bearer $BRIGHTDATA_API_KEY" \
+#        -H "Content-Type: application/json" \
+#        -d '{"input":[{"url":"<glassdoor-jd-url>"}]}' \
+#        "https://api.brightdata.com/datasets/v3/scrape?dataset_id=<dataset-id>&notify=false&include_errors=true"
+
+data_sources:
+  bright_data_datasets:
+    - name: Glassdoor — job listings
+      portal: Glassdoor
+      endpoint: https://api.brightdata.com/datasets/v3/scrape
+      dataset_id: gd_lpfbbndm1xnopbrcr0
+      auth_env: BRIGHTDATA_API_KEY
+      params:
+        notify: false
+        include_errors: true
+      input_field: url
+      notes: "Bright Data marketplace dataset for Glassdoor job listings. Returns parsed company, title, location, JD body, posted date."
+      enabled: false   # flip to true once BRIGHTDATA_API_KEY is set in .env
+
+    # Add more Bright Data datasets here as needed (LinkedIn jobs, Indeed, etc.).
