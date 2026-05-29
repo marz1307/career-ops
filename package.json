@@ -30,6 +30,7 @@
     "automation",
     "claude-skill"
   ],
+  "author": "Marvis Osazuwa <marvis.osazuwa@hotmail.com>",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^17.0.0",
