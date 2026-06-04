@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "brightdata": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@brightdata/mcp"],
+      "env": {
+        "API_TOKEN": "${BRIGHTDATA_API_KEY}"
+      }
+    },
+    "firecrawl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_URL": "${FIRECRAWL_URL:-http://localhost:3002}",
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY:-}"
+      }
+    }
+  }
+}

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<title>{{NAME}} {{DOC_LABEL}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-muted: #555;
+    --rule: #d6d3ce;
+    --accent: #D4471F;
+    --paper: #fff;
+    --serif: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "JetBrains Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: var(--serif); color: var(--ink); background: var(--paper); }
+  body { font-size: 8.25pt; line-height: 1.2; }
+  @page { size: A4; margin: 0.7cm 1cm; }
+
+  h1, h2, h3, h4 { font-family: var(--sans); color: var(--ink); }
+  h1 { font-size: 13pt; font-weight: 600; letter-spacing: -0.01em; }
+  h2 {
+    font-size: 9pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+    margin: 4pt 0 2pt 0;
+  }
+  h3 { font-size: 9pt; font-weight: 600; margin-top: 4pt; }
+  h4 { font-size: 8.5pt; font-weight: 500; color: var(--ink-muted); margin-top: 1pt; }
+  p, li { font-size: 8.25pt; line-height: 1.2; }
+  ul { padding-left: 1.05em; margin-top: 1pt; }
+  li { margin-bottom: 1pt; }
+  a { color: var(--accent); text-decoration: none; }
+  strong { font-weight: 600; }
+  section { break-inside: auto; }
+
+  /* Centred top title (e.g. "CV") */
+  .doc-title {
+    text-align: center;
+    font-family: var(--serif);
+    font-size: 14pt;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0 0 6pt 0;
+    letter-spacing: 0;
+  }
+
+  /* Header: flex row so the photo (DE only) sits top-right */
+  .header-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10pt;
+    margin-bottom: 2pt;
+  }
+  .header-text { flex: 1 1 auto; min-width: 0; }
+
+  /* German photo: 3.5cm × 4.5cm, top-right. Rendered only when generator injects PHOTO_BLOCK. */
+  .header-photo {
+    flex: 0 0 3.2cm;
+    width: 3.2cm;
+    height: 4.1cm;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    background: #f5f3ee;
+  }
+  .header-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .header-tagline {
+    font-family: var(--sans);
+    font-size: 9.5pt;
+    color: var(--ink-muted);
+    margin-top: 1pt;
+    font-weight: 500;
+  }
+  .contact {
+    font-family: var(--sans);
+    font-size: 8pt;
+    margin-top: 2pt;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+  .contact a { color: var(--ink); }
+  .contact .sep { color: var(--rule); margin: 0 5px; }
+
+  /* Persönliche Daten table (DE only) — inset, label/value */
+  table.personal-data {
+    width: auto;
+    margin: 0 auto 0 auto;
+    border-collapse: collapse;
+    font-family: var(--serif);
+    font-size: 8.25pt;
+    line-height: 1.18;
+  }
+  table.personal-data td {
+    padding: 0.3pt 12pt 0.3pt 0;
+    vertical-align: top;
+    border: none;
+  }
+  table.personal-data td.pd-label {
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--ink);
+    padding-right: 18pt;
+    white-space: nowrap;
+  }
+  table.personal-data td.pd-value { color: var(--ink); }
+
+  /* Role / experience block */
+  .role h3 {
+    font-family: var(--sans);
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 4pt;
+  }
+  .role { margin-bottom: 4pt; }
+  .role ul { padding-left: 1.05em; margin-top: 1pt; }
+  .role li { font-size: 8.25pt; line-height: 1.2; margin-bottom: 0.5pt; }
+  .stack {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--ink-muted);
+    margin-top: 1pt;
+  }
+  .stack-label { color: var(--accent); font-weight: 600; }
+
+  /* Project block */
+  .project { margin-bottom: 3pt; }
+  .project .project-title {
+    font-family: var(--sans);
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+  .project p { font-size: 8.5pt; line-height: 1.28; margin-bottom: 1pt; }
+  .project .project-tags {
+    font-family: var(--mono);
+    font-size: 7.5pt;
+    color: var(--ink-muted);
+    margin-top: 1pt;
+  }
+
+  /* Skills block */
+  /* Skills block — canonical: one paragraph with bold sans labels inline */
+  .skills-paragraph {
+    font-size: 8.25pt;
+    line-height: 1.32;
+    color: var(--ink);
+    margin: 0;
+  }
+  .skills-paragraph strong {
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .skill-row {
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--ink);
+    margin-bottom: 1pt;
+  }
+  .skill-row strong {
+    font-family: var(--sans);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Competency tags (kept available; usually empty for canonical look) */
+  .competencies-grid { display: flex; flex-wrap: wrap; gap: 4pt; }
+  .competency-tag {
+    font-family: var(--mono);
+    font-size: 7pt;
+    color: var(--ink-muted);
+    background: #f5f3ee;
+    padding: 0pt 4pt;
+    border-radius: 2px;
+  }
+
+  /* Page break guards */
+  .avoid-break, .role, .project, .edu-item, .cert-item, .header, table.personal-data {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+</style>
+</head>
+<body>
+
+<!-- CENTRED TITLE — "CV" -->
+<div class="doc-title">{{NAME}} {{DOC_LABEL}}</div>
+
+<!-- HEADER: name + tagline + (EN: contact row) | (DE: photo only) -->
+<header class="header avoid-break">
+  <div class="header-inner">
+    <div class="header-text">
+      <h1>{{NAME}}</h1>
+      <p class="header-tagline">{{TAGLINE}}</p>
+      {{HEADER_SUBTITLE}}
+    </div>
+    {{PHOTO_BLOCK}}
+  </div>
+</header>
+
+<!-- PERSONAL DATA (optional — empty for EN) -->
+{{PERSONAL_DATA_BLOCK}}
+
+<!-- PROFIL / PROFILE -->
+<section class="avoid-break">
+  <h2>{{SECTION_SUMMARY}}</h2>
+  <p>{{SUMMARY_TEXT}}</p>
+</section>
+
+<!-- CORE COMPETENCIES (only rendered when keywords are supplied) -->
+{{COMPETENCIES_BLOCK}}
+
+<!-- BERUFSERFAHRUNG / EXPERIENCE -->
+<section>
+  <h2>{{SECTION_EXPERIENCE}}</h2>
+  {{EXPERIENCE}}
+</section>
+
+<!-- AUSGEWÄHLTE PROJEKTE / SELECTED PROJECTS -->
+<section class="avoid-break">
+  <h2>{{SECTION_PROJECTS}}</h2>
+  {{PROJECTS}}
+</section>
+
+<!-- AUSBILDUNG / EDUCATION -->
+<section class="avoid-break">
+  <h2>{{SECTION_EDUCATION}}</h2>
+  {{EDUCATION}}
+</section>
+
+<!-- TECHNISCHE KENNTNISSE / TECHNICAL SKILLS -->
+<section class="avoid-break">
+  <h2>{{SECTION_SKILLS}}</h2>
+  {{SKILLS}}
+</section>
+
+<!-- SPRACHEN / LANGUAGES -->
+<section class="avoid-break">
+  <h2>{{SECTION_LANGUAGES}}</h2>
+  {{LANGUAGES}}
+</section>
+
+<!-- ZERTIFIKATE / CERTIFICATIONS -->
+<section class="avoid-break">
+  <h2>{{SECTION_CERTIFICATIONS}}</h2>
+  {{CERTIFICATIONS}}
+</section>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+# Personal data (user fills these)
+cv.md
+data/applications.md
+data/pipeline.md
+data/scan-history.tsv
+data/parser-output/**/*.json
+!data/parser-output/.gitkeep
+!data/parser-output/**/.gitkeep
+data/routine-logs/
+data/wrapper-trace.log
+data/scan-failures.json
+# Generic catch-all for routine scratch dirs/files under data/.
+# Routines sometimes write working state beside their inputs;
+# Notion is the system of record, so anything routine-local under
+# data/ that isn't an explicitly tracked source file stays out of git.
+data/apify-tmp/
+data/apify-*.json
+data/.routine-*/
+reports/*.md
+!reports/.gitkeep
+output/*
+!output/.gitkeep
+!output/cover-letters/
+output/cover-letters/*
+!output/cover-letters/.gitkeep
+!output/cv-tailored/
+output/cv-tailored/*
+!output/cv-tailored/.gitkeep
+!output/form-answers/
+output/form-answers/*
+!output/form-answers/.gitkeep
+batch/logs/*
+!batch/logs/.gitkeep
+batch/batch-state.tsv
+batch/batch-input.tsv
+batch/tracker-additions/**/*.tsv
+!batch/tracker-additions/.gitkeep
+jds/*
+!jds/.gitkeep
+
+# Writing samples (user's personal files — never committed)
+writing-samples/*
+!writing-samples/README.md
+
+# User config and customization (never auto-updated)
+config/profile.yml
+portals.yml
+modes/_profile.md
+.update-dismissed
+.update-lock
+
+# Secrets (never commit — use .env.example as template)
+.env
+# Token / credential files — generic safety net so accidental drops
+# don't land in history. Use User-scope env vars (setx) instead.
+*.token
+*credentials*
+*secret*
+apify.txt
+brightdata.txt
+
+# Generated
+.resolved-prompt-*
+node_modules/
+bun.lock
+
+# OS
+.DS_Store
+*.mov
+*.mp4
+
+# Claude Code local
+.claude/settings.local.json
+.claude/memory/
+career-dashboard
+package-lock.json
+# CV generator outputs
+cv/output/
+output/cv-drafts/
+
+# Wrapper alert payloads (transient)
+data/.alerts/
+
+# Cloudflare tunnel artifacts (ephemeral)
+data/.tunnel/
+data.json
+data/bd-seen-urls.json

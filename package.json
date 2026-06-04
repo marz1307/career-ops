@@ -1,0 +1,42 @@
+{
+  "name": "career-ops",
+  "version": "1.0.0",
+  "description": "AI-powered job search and application pipeline for Claude Code. Scan portals, score postings, draft tailored CVs and cover letters, log to a tracker. Never auto-submits.",
+  "private": true,
+  "scripts": {
+    "doctor": "node doctor.mjs",
+    "verify": "node verify-pipeline.mjs",
+    "normalize": "node normalize-statuses.mjs",
+    "dedup": "node dedup-tracker.mjs",
+    "merge": "node merge-tracker.mjs",
+    "pdf": "node generate-pdf.mjs",
+    "pdf:tailored": "node generate-pdf-tailored.mjs",
+    "sync-check": "node cv-sync-check.mjs",
+    "liveness": "node check-liveness.mjs",
+    "scan": "node scan.mjs",
+    "patterns": "node analyze-patterns.mjs",
+    "pace": "node pace-alarm.mjs",
+    "pace:json": "node pace-alarm.mjs --json",
+    "window": "node apply-window.mjs",
+    "window:json": "node apply-window.mjs --json",
+    "test:scripts": "node test-scripts-smoke.mjs",
+    "test": "node test-scripts-smoke.mjs",
+    "notion:setup": "node notion-dashboard.mjs",
+    "notion:check": "node notion-dashboard.mjs --check"
+  },
+  "keywords": [
+    "ai",
+    "job-search",
+    "claude-code",
+    "career",
+    "automation",
+    "claude-skill"
+  ],
+  "author": "Marvis Osazuwa (https://github.com/marz1307)",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.0.0",
+    "js-yaml": "^4.1.1",
+    "playwright": "^1.58.1"
+  }
+}

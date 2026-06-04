@@ -1,0 +1,126 @@
+# Career-Ops Profile Configuration
+# Copy this file to config/profile.yml and fill in your details.
+# This is the single source of truth for your personal data across all modes.
+
+candidate:
+  full_name: "Jane Smith"
+  email: "jane@example.com"
+  phone: "+1-555-0123"
+  location: "San Francisco, CA"
+  linkedin: "linkedin.com/in/janesmith"
+  portfolio_url: "https://janesmith.dev"
+  github: "github.com/janesmith"
+  twitter: "https://x.com/janesmith"
+
+schedule:
+  # When the recurring scan runs. Set by the onboarding flow.
+  scan_hour_local: "07:00"        # 24-hour HH:MM in your local timezone
+  timezone: "Europe/London"       # IANA name — match location.timezone
+  days: [1, 2, 3, 4, 5]           # ISO weekdays (1=Mon..7=Sun)
+
+target_markets:
+  # Where you want to work. Used to seed portals.yml.location_filter
+  # and the Notion Country select. Multi-select is fine.
+  - "United Kingdom"
+  # - "European Union (broad)"
+  # - "United States"
+  # - "Remote (any region)"
+
+target_roles:
+  # Your North Star roles — what you're optimizing for.
+  # Used to seed portals.yml.title_filter.positive and the Notion Position multi-select.
+  primary:
+    - "Senior AI Engineer"
+    - "Staff ML Engineer"
+  # Archetypes help the evaluation system score fit
+  archetypes:
+    - name: "AI/ML Engineer"
+      level: "Senior/Staff"
+      fit: "primary"        # primary = dream role, secondary = good fit, adjacent = stretch
+    - name: "AI Product Manager"
+      level: "Senior"
+      fit: "secondary"
+    - name: "Solutions Architect"
+      level: "Mid-Senior"
+      fit: "adjacent"
+
+narrative:
+  # Your professional headline (1 line)
+  headline: "ML Engineer turned AI product builder"
+  # Your exit story — what makes you unique
+  exit_story: "Built and sold my SaaS after 5 years. Now focused on applied AI at scale."
+  # Your top 3-5 superpowers
+  superpowers:
+    - "End-to-end ML pipelines"
+    - "Fast prototyping (idea to prod in 2 weeks)"
+    - "Cross-functional communication"
+  # Proof points — projects, articles, case studies with measurable impact
+  proof_points:
+    - name: "Project Alpha"
+      url: "https://janesmith.dev/project-alpha"
+      hero_metric: "Reduced inference latency 40%"
+    - name: "Open Source Tool"
+      url: "https://github.com/janesmith/tool"
+      hero_metric: "2K+ GitHub stars"
+  # Optional: dashboard/demo URL with credentials
+  # dashboard:
+  #   url: "https://janesmith.dev/demo"
+  #   password: "demo-2026"
+
+compensation:
+  target_range: "$150K-200K"     # Your target total comp
+  currency: "USD"
+  minimum: "$120K"               # Walk-away number
+  location_flexibility: "Remote preferred, 1 week/month on-site possible"
+
+location:
+  country: "United States"
+  city: "San Francisco"
+  timezone: "PST"
+  visa_status: "No sponsorship needed"
+  # For remote roles outside your country:
+  # onsite_availability: "1 week/month in any city"
+
+cv:
+  output_format: "html" # "html" (default) or "latex"
+  # (Optional) Canva resume design ID for visual CV generation via /career-ops pdf.
+  # Find it in your Canva design URL: https://www.canva.com/design/DAxxxxxxx/...
+  # The ID starts with "D" and is 11 characters long.
+  # canva_resume_design_id: "DAxxxxxxxxx"
+# Notion as system of record for the Applications database.
+# The /career-ops skill auto-populates this during onboarding.
+# notion:
+#   applications_db_id: "00000000000000000000000000000000"
+#   applications_data_source_id: "00000000-0000-0000-0000-000000000000"
+#   parent_page_id: "00000000000000000000000000000000"
+#   # Optional second database for outreach tracking:
+#   # referral_outreach_db_id: "00000000000000000000000000000000"
+#   # referral_outreach_data_source_id: "00000000-0000-0000-0000-000000000000"
+
+# (Optional) Apply-pace targets — read by pace-alarm.mjs. If absent,
+# pace-alarm falls back to sensible defaults (29/day, 25 alarm floor).
+# pace:
+#   target_per_day: 29
+#   target_per_week: 203          # target_per_day * 7
+#   alarm_threshold_per_day: 25   # consecutive days below this triggers alarm
+#   alarm_consecutive_days: 2
+
+# (Optional) Apply-timing rules — read by apply-window.mjs and pace-alarm.mjs.
+# Codifies the "Tue–Thu, 06:30–09:00 local, within N days of posting" rules
+# derived from job-application-timing research. Tune freshness_days_by_role
+# to match your market's cycle speeds.
+# apply:
+#   local_tz: "Europe/London"
+#   preferred_days: [2, 3, 4]      # Tue, Wed, Thu (ISO 1=Mon..7=Sun)
+#   acceptable_days: [1]
+#   avoid_days: [5, 6, 7]
+#   window_start_hour: 6.5         # 06:30 local
+#   window_end_hour: 9.0           # 09:00 local
+#   fallback_window_start_hour: 12.0
+#   fallback_window_end_hour: 13.0
+#   freshness_days_by_role:
+#     "Analytics Engineer": 5
+#     "Data Engineer": 5
+#     "Data Scientist": 7
+#     "Data Analyst": 10
+#   freshness_default_days: 7
