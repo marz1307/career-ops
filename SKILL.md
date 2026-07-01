@@ -184,6 +184,19 @@ After the user answers, prompt for the actual values in plain chat (one message 
 - Write to `WORKSPACE/config/profile.yml → target_markets: [<list>]`.
 - Seed `WORKSPACE/portals.yml.location_filter.allow` and `always_allow`.
 
+### Work eligibility (visa / sponsorship)
+Right-to-work status changes which roles are even reachable, so capture it now. Ask in plain chat (one message):
+
+> "Quick work-eligibility check so I never flag your visa wrongly or waste an application on an employer who can't hire you: what's your right to work in your target market(s)? (e.g. 'US citizen', 'EU citizen', 'UK — need Skilled Worker sponsorship', 'on a time-limited visa I'll need to convert')."
+
+- Write the answer to `WORKSPACE/config/profile.yml → work_eligibility.summary`.
+- **If "United Kingdom" is a target market**, additionally ask:
+  > "For UK roles — do you need an employer to sponsor a Skilled Worker visa (now or in future), or do you already have the right to work in the UK (citizen, settled/pre-settled, ILR)?"
+  - "Need sponsorship" → set `work_eligibility.needs_uk_sponsorship: true`, then tell the user:
+    > "Noted. For UK roles I'll check each employer against the gov.uk licensed-sponsor register — an unlicensed company legally can't sponsor you, so I'll flag those before you waste an application. To enable it, download the register CSV (one file, ~11 MB) into `data/uk-sponsor-register/` and run `npm run sponsor:rebuild`. See `data/uk-sponsor-register/README.md` for the link and steps. Want me to walk you through it now or later?"
+  - "Already authorised" → set `work_eligibility.needs_uk_sponsorship: false`.
+- If the UK is not a target market, leave `needs_uk_sponsorship: false`.
+
 ### Target roles
 - Pasted titles → write to `target_roles.primary: [<list>]` AND seed `portals.yml.title_filter.positive`.
 - "Infer from CV" → extract role titles from the most recent 2 positions in `cv.md`. Confirm before saving.

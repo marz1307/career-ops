@@ -44,7 +44,13 @@ AI-powered job search automation built on Claude Code. End-to-end pipeline: scan
 | `templates/states.yml` | Canonical application states. |
 | `generate-pdf.mjs` | Playwright HTML → PDF renderer. |
 | `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler. |
-| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly. |
+| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever/SmartRecruiters APIs directly. |
+| `providers/smartrecruiters.mjs` | Scanner provider for SmartRecruiters-backed careers sites (public Posting API). Auto-loaded; enable per company with `provider: smartrecruiters` + `sr_company` in `portals.yml`. |
+| `sponsor-check.mjs` | UK licensed-sponsor lookup for candidates who need UK sponsorship (`config/profile.yml → work_eligibility.needs_uk_sponsorship`). Matches an employer against the local gov.uk register to tell whether it can sponsor a Skilled Worker visa. Drives the `uk-sponsor-licensed` / `uk-sponsor-route-mismatch` / `uk-no-sponsor-licence` tags in `oferta.md` Step 6. |
+| `role-taxonomy.mjs` | Optional, opt-in title-filter/archetype source. Reads `config/role-taxonomy.yml` (copy from `.example.yml`); absent → scanner uses `portals.yml title_filter`. |
+| `funnel-metrics.mjs` | Real outcome KPIs from the Notion Applications DB (response / screen / rejection rate by portal, country, referral, sponsorship). Needs `NOTION_TOKEN`. |
+| `caveats-audit.mjs` | Zero-LLM lint over generated CVs / cover letters for `cv-quality-rules.md` violations. |
+| `cv/cv-qa.mjs` | LLM post-draft QA over a generated CV vs the JD + `cv-quality-rules.md`. Runs on the Claude subscription via the `claude` CLI (no API key); skips gracefully if the CLI is unavailable. |
 | `check-liveness.mjs` · `liveness-core.mjs` · `liveness-browser.mjs` | Job posting liveness checks. |
 | `merge-tracker.mjs` · `dedup-tracker.mjs` · `normalize-statuses.mjs` · `verify-pipeline.mjs` | Tracker maintenance scripts. |
 | `analyze-patterns.mjs` | Pattern analysis on rejection / response data (JSON output). |

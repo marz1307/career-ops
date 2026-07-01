@@ -1,0 +1,92 @@
+# Role-name → archetype taxonomy — EXAMPLE (optional, opt-in).
+#
+# Copy this file to config/role-taxonomy.yml to enable it, then edit the roles
+# to match YOUR target market. If config/role-taxonomy.yml is absent, the whole
+# pipeline falls back to the hand-maintained portals.yml title_filter lists —
+# nothing breaks. Delete config/role-taxonomy.yml at any time to revert.
+#
+# This is a SINGLE source of truth for role targeting. When present it is
+# consumed (read-only) by:
+#   - the scanner (scan.mjs) — derives title_filter (core+adjacent → positive,
+#     exclusions → negative; `watch` only behind --include-watch)
+#   - scoring — seeds the matched archetype + applies a tier penalty
+# Consumers must NOT hardcode role names — they read this file.
+#
+# The example below is aligned with config/profile.example.yml archetypes
+# (AI/ML Engineer, AI Product Manager, Solutions Architect) and
+# templates/portals.example.yml title_filter. Replace it with your own roles.
+#
+# tiers:  core     = names an archetype or tight synonym (positive, no penalty)
+#         adjacent = overlaps but drifts (positive, scoring penalty)
+#         watch    = too broad; discovery telemetry only (positive behind --include-watch)
+#         exclude  = seniority / wrong-tech / wrong-domain (maps to title_filter.negative)
+version: 1
+
+# Canonical archetype keys. `query_name` is the display role used when
+# generating scan queries from core archetypes (deriveQueries). Keep it generic.
+archetypes:
+  - { key: AIE, query_name: "AI Engineer" }        # AI / ML Engineer
+  - { key: APM, query_name: "AI Product Manager" } # AI Product Manager
+  - { key: SA,  query_name: "Solutions Architect" }# Solutions Architect
+  - { key: DS,  query_name: "Data Scientist" }     # Data Scientist
+  - { key: DE,  query_name: "Data Engineer" }      # Data Engineer
+  - { key: DA,  query_name: "Data Analyst" }       # Data Analyst
+  - { key: BI,  query_name: "BI Engineer" }        # BI / Reporting
+
+roles:
+  # ── AI / ML Engineer (AIE) — primary ────────────────────────────────
+  - { name: "AI Engineer", archetype: AIE, tier: core, lang: en, aliases: ["Applied AI Engineer"] }
+  - { name: "Machine Learning Engineer", archetype: AIE, tier: core, lang: en, aliases: ["ML Engineer"] }
+  - { name: "LLM Engineer", archetype: AIE, tier: core, lang: en, aliases: ["GenAI Engineer", "Generative AI Engineer"] }
+  - { name: "Applied Scientist", archetype: AIE, tier: core, lang: en, aliases: ["Applied AI Scientist"] }
+  - { name: "MLOps Engineer", archetype: AIE, tier: core, lang: en, aliases: ["LLMOps Engineer"] }
+  # ── AI Product Manager (APM) — secondary ────────────────────────────
+  - { name: "AI Product Manager", archetype: APM, tier: core, lang: en, aliases: ["Technical Product Manager", "Technical PM"] }
+  - { name: "Product Manager", archetype: APM, tier: adjacent, lang: en, aliases: [], notes: "Broad; adjacent unless AI-scoped." }
+  # ── Solutions Architect (SA) — adjacent / stretch ───────────────────
+  - { name: "Solutions Architect", archetype: SA, tier: core, lang: en, aliases: ["Solutions Engineer"] }
+  - { name: "Forward Deployed Engineer", archetype: SA, tier: core, lang: en, aliases: ["Deployed Engineer"] }
+  - { name: "Customer Engineer", archetype: SA, tier: adjacent, lang: en, aliases: [], notes: "Pre/post-sales drift." }
+  - { name: "Integration Engineer", archetype: SA, tier: adjacent, lang: en, aliases: [] }
+  # ── Data Scientist (DS) ─────────────────────────────────────────────
+  - { name: "Data Scientist", archetype: DS, tier: core, lang: en, aliases: ["Product Data Scientist"] }
+  - { name: "Decision Scientist", archetype: DS, tier: adjacent, lang: en, aliases: [] }
+  - { name: "Quantitative Analyst", archetype: DS, tier: adjacent, lang: en, aliases: [], notes: "Only where NOT quant-finance/maths-PhD." }
+  # ── Data Engineer (DE) ──────────────────────────────────────────────
+  - { name: "Data Engineer", archetype: DE, tier: core, lang: en, aliases: ["Cloud Data Engineer", "Data Platform Engineer"] }
+  - { name: "Analytics Engineer", archetype: DE, tier: core, lang: en, aliases: ["Analytics Engineering", "dbt Developer"] }
+  - { name: "ETL Developer", archetype: DE, tier: adjacent, lang: en, aliases: ["ELT Developer"] }
+  # ── Data Analyst (DA) ───────────────────────────────────────────────
+  - { name: "Data Analyst", archetype: DA, tier: core, lang: en, aliases: ["Product Data Analyst"] }
+  - { name: "Business Analyst", archetype: DA, tier: adjacent, lang: en, aliases: [], notes: "Business, not data-engineering." }
+  - { name: "Analytics", archetype: DA, tier: watch, lang: en, aliases: [], notes: "Bare \"Analytics\" is far too broad; hand-review only." }
+  # ── BI / Reporting (BI) ─────────────────────────────────────────────
+  - { name: "BI Engineer", archetype: BI, tier: core, lang: en, aliases: ["Business Intelligence Engineer"] }
+  - { name: "BI Analyst", archetype: BI, tier: core, lang: en, aliases: ["Business Intelligence Analyst"] }
+
+# Titles that disqualify a posting regardless of any positive match.
+# Each carries a reason: seniority | wrong-tech | wrong-domain.
+exclusions:
+  - { name: "Intern", reason: seniority }
+  - { name: "Internship", reason: seniority }
+  - { name: "Apprentice", reason: seniority }
+  - { name: "Trainee", reason: seniority }
+  - { name: ".NET", reason: wrong-tech }
+  - { name: "C#", reason: wrong-tech }
+  - { name: "iOS", reason: wrong-tech }
+  - { name: "Android", reason: wrong-tech }
+  - { name: "PHP", reason: wrong-tech }
+  - { name: "Ruby on Rails", reason: wrong-tech }
+  - { name: "Embedded", reason: wrong-tech }
+  - { name: "Firmware", reason: wrong-tech }
+  - { name: "FPGA", reason: wrong-tech }
+  - { name: "ASIC", reason: wrong-tech }
+  - { name: "Blockchain", reason: wrong-tech }
+  - { name: "Web3", reason: wrong-tech }
+  - { name: "Crypto", reason: wrong-tech }
+  - { name: "Solidity", reason: wrong-tech }
+  - { name: "Salesforce Admin", reason: wrong-tech }
+  - { name: "Salesforce Developer", reason: wrong-tech }
+  - { name: "Oracle EBS", reason: wrong-tech }
+  - { name: "Mainframe", reason: wrong-tech }
+  - { name: "COBOL", reason: wrong-tech }

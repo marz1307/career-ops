@@ -25,6 +25,7 @@
  *   node scan.mjs --dry-run        # preview without writing files
  *   node scan.mjs --company Cohere # scan a single company
  *   node scan.mjs --verify         # Playwright-check each new URL; drop expired postings
+ *   node scan.mjs --include-watch  # include `watch`-tier titles (only when config/role-taxonomy.yml exists)
  */
 
 import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
@@ -33,6 +34,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 
 import { makeHttpCtx } from './providers/_http.mjs';
+import { loadTaxonomy, deriveTitleFilter } from './role-taxonomy.mjs';
 
 const parseYaml = yaml.load;
 
@@ -429,6 +431,7 @@ async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const verify = args.includes('--verify');
+  const includeWatch = args.includes('--include-watch');
   const companyFlag = args.indexOf('--company');
   const filterCompany = companyFlag !== -1 ? args[companyFlag + 1]?.toLowerCase() : null;
 
@@ -447,7 +450,20 @@ async function main() {
 
   const config = parseYaml(readFileSync(PORTALS_PATH, 'utf-8'));
   const companies = config.tracked_companies || [];
-  const titleFilter = buildTitleFilter(config.title_filter);
+
+  // Title filter source of truth = config/role-taxonomy.yml when present
+  // (core+adjacent → positive, watch behind --include-watch, exclusions →
+  // negative). Falls back to the hand-maintained portals.yml title_filter when
+  // the taxonomy file is absent (the default). This module is opt-in: copy
+  // config/role-taxonomy.example.yml → config/role-taxonomy.yml to enable it.
+  const _tax = loadTaxonomy(path.dirname(PORTALS_PATH) || '.');
+  const _titleFilterSpec = _tax ? deriveTitleFilter(_tax, { includeWatch }) : config.title_filter;
+  if (_tax) {
+    console.error(`[title-filter] role-taxonomy.yml → ${_titleFilterSpec.positive.length} positive / ${_titleFilterSpec.negative.length} negative (watch ${includeWatch ? 'included' : 'excluded'})`);
+  } else {
+    console.error('[title-filter] portals.yml title_filter (taxonomy absent)');
+  }
+  const titleFilter = buildTitleFilter(_titleFilterSpec);
   const locationFilter = buildLocationFilter(config.location_filter);
 
   // 3. Resolve a provider for each enabled company

@@ -16,6 +16,11 @@ data/scan-failures.json
 data/apify-tmp/
 data/apify-*.json
 data/.routine-*/
+# UK sponsor register: large regenerable artefacts (CSV is re-downloadable from
+# gov.uk; index is rebuilt with: node sponsor-check.mjs --rebuild). Keep only the
+# README (source URL + steps) in git — see data/uk-sponsor-register/README.md.
+data/uk-sponsor-register/index.json
+data/uk-sponsor-register/*.csv
 reports/*.md
 !reports/.gitkeep
 output/*

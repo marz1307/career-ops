@@ -351,6 +351,15 @@ tracked_companies:
     notes: "SF + remote EU. AI search."
     enabled: true
 
+  # SmartRecruiters-backed careers site (public Posting API, auto-loaded by
+  # the smartrecruiters provider). Give the SmartRecruiters companyId via
+  # `sr_company`, or point `api:` at /v1/companies/{id}/postings. Example:
+  # - name: Example Co
+  #   provider: smartrecruiters
+  #   sr_company: ExampleCo        # the {companyId} in api.smartrecruiters.com
+  #   careers_url: https://careers.example.com
+  #   enabled: true
+
   # ============================================================
   # UK / EU AI
   # ============================================================

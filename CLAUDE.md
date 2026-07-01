@@ -36,13 +36,18 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | `templates/cv-template.tex` | LaTeX/Overleaf template for CVs |
 | `generate-pdf.mjs` | Playwright: HTML to PDF |
 | `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
+| `cv/cv-qa.mjs` | LLM-powered post-draft QA over a generated CV (and optional cover letter) against the JD + `modes/cv-quality-rules.md`. Runs on your Claude subscription via the `claude` CLI (`claude -p`) — no API key. Auto-patches verbatim fixes, bounded cover-letter regen loop. Skips gracefully (exit 0) if the CLI is unavailable; `CLAUDE_CLI` overrides the binary path, `--model` / `CV_QA_MODEL` override the model (default `claude-sonnet-5`). |
+| `role-taxonomy.mjs` | Optional, opt-in read-only taxonomy consumer. Reads `config/role-taxonomy.yml` (copy from `config/role-taxonomy.example.yml`) and derives the scanner's `title_filter` (core+adjacent → positive, exclusions → negative, `watch` behind `--include-watch`) + archetype/tier classification for scoring. Absent → scanner falls back to `portals.yml title_filter`. Hardcodes no role names. |
 | `article-digest.md` | Compact proof points from portfolio (optional) |
 | `interview-prep/story-bank.md` | Accumulated STAR+R stories across evaluations |
 | `interview-prep/{company}-{role}.md` | Company-specific interview intel reports |
 | `analyze-patterns.mjs` | Pattern analysis script (JSON output) |
 | `followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
+| `funnel-metrics.mjs` | Real outcome KPIs from the Notion Applications DB — response / screen / rejection rate, sliced by source portal, country, referral, sponsorship, plus a Match-score reality check. Needs `NOTION_TOKEN`. `--json`, `--min-cohort N`. |
+| `caveats-audit.mjs` | Zero-LLM lint over generated CVs / cover letters in `output/` for `cv-quality-rules.md` violations (banned vocab, banned constructions, em/en dashes). `--root`, `--json`, `--top N`. |
 | `data/follow-ups.md` | Follow-up history tracker |
 | `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
+| `sponsor-check.mjs` | UK licensed-sponsor lookup. For candidates who need UK sponsorship (`config/profile.yml → work_eligibility.needs_uk_sponsorship: true`), matches an employer against the local gov.uk Register of licensed sponsors (`data/uk-sponsor-register/`, normalised + fuzzy) to tell whether it can legally sponsor a Skilled Worker visa. Drives the `uk-sponsor-licensed` / `uk-sponsor-route-mismatch` / `uk-no-sponsor-licence` tags in `oferta.md` Step 6. `--company "X" --json`, `--rebuild` after re-download. Zero LLM cost. |
 | `check-liveness.mjs` | Job posting liveness checker |
 | `liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`). Blocks A-F + G (Posting Legitimacy), plus `## Machine Summary` YAML for downstream scripts. Header includes `**Legitimacy:** {tier}`. |

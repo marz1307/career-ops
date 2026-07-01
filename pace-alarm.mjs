@@ -87,6 +87,12 @@ function parseApplicationsMd(path) {
   try {
     text = readFileSync(path, "utf8");
   } catch (e) {
+    // A missing cache is not an error — the file is a local mirror that
+    // apply.md writes on the first submit. Treat "never written yet" as an
+    // empty dataset so pace surfaces a stale-cache warning (per this file's
+    // header) rather than a hard exit-1 false alarm. checkStaleness() already
+    // flags the absence. Any OTHER read failure (permissions, etc.) is fatal.
+    if (e.code === "ENOENT") return { rows: [] };
     return { rows: [], error: `Cannot read ${path}: ${e.message}` };
   }
   // Find the table rows. Format:

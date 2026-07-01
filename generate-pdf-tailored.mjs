@@ -14,6 +14,7 @@
  * Overrides:
  *   --with-photo  → force photo onto a CV (some markets prefer a photo)
  *   --no-photo    → drop photo (recruiter asked)
+ *   --role-title "<title>" → override the CV tagline for this render (never edits cv.md)
  *
  * Golden rule: --max-pages 2 (default). Generator exits 2 if exceeded.
  *
@@ -61,6 +62,7 @@ function parseArgs(argv) {
     else if (a === "--with-photo") args.withPhoto = true;
     else if (a === "--max-pages") args.maxPages = parseInt(argv[++i], 10);
     else if (a === "--profile-text") args.profileText = argv[++i];
+    else if (a === "--role-title") args.roleTitle = argv[++i];
   }
 
   // Language resolution:
@@ -322,6 +324,7 @@ async function main() {
   if (args.country) console.log(`🌍 Country:   ${args.country}${args.isPhotoLangCountry ? "" : ""}`);
   if (args.includePhoto) console.log(`📷 Photo:     embedded (35mm × 45mm photo)`);
   if (args.keywords.length) console.log(`🔑 Keywords:  ${args.keywords.join(", ")}`);
+  if (args.roleTitle) console.log(`🏷  Role title override: ${args.roleTitle}`);
 
   const cvText = await readFileAsync(resolve(__dirname, args.cv), "utf8");
   const templateText = await readFileAsync(resolve(__dirname, "templates/cv-template.html"), "utf8");
@@ -374,7 +377,9 @@ async function main() {
         personal_data:   "Personal Details",
       };
 
-  const tagline = extractRoleTagline(sections.header) || "Analytics Engineer · Data Scientist";
+  // --role-title overrides the CV tagline for this render only (never edits cv.md).
+  // Falls back to the cv.md header tagline, then a generic default.
+  const tagline = args.roleTitle || extractRoleTagline(sections.header) || "Analytics Engineer · Data Scientist";
 
   // ── DE CV: embed photo (base64 so HTML is self-contained) ──
   let photoBlock = "";

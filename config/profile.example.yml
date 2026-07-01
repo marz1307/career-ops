@@ -77,9 +77,23 @@ location:
   country: "United States"
   city: "San Francisco"
   timezone: "PST"
-  visa_status: "No sponsorship needed"
   # For remote roles outside your country:
   # onsite_availability: "1 week/month in any city"
+
+work_eligibility:
+  # Free-text summary of your right to work, per market. Shown to the evaluator
+  # so it never invents a visa story. Keep it factual.
+  summary: "Authorised to work in the US. No sponsorship needed."
+  # Set true if you need a UK employer to sponsor a Skilled Worker visa —
+  # either now, or in future (e.g. a time-limited visa you'll need to convert).
+  # When true, oferta Step 6 runs sponsor-check.mjs against the gov.uk licensed-
+  # sponsor register for UK roles, because an unlicensed employer legally cannot
+  # sponsor you no matter how good the fit. Leave false if you already hold the
+  # right to work in the UK (citizen, settled/pre-settled, ILR).
+  needs_uk_sponsorship: false
+  # Optional per-market notes the evaluator should respect, e.g.
+  # eu: "EU citizen — no permit needed anywhere in the EU/EEA."
+  # us: "Need H-1B sponsorship."
 
 cv:
   output_format: "html" # "html" (default) or "latex"

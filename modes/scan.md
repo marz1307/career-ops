@@ -28,6 +28,8 @@ Read `portals.yml`, which contains:
 - `title_filter`: positive / negative / seniority keywords for title filtering
 - `location_filter`: country / city allow + block lists
 
+**Optional tiered role taxonomy.** The title filter can instead be driven by `config/role-taxonomy.yml` — copy `config/role-taxonomy.example.yml` to enable it. When present, `scan.mjs` derives the filter from it (core + adjacent tiers → positive, exclusions → negative; `watch` tier added only with `node scan.mjs --include-watch`) and logs `[title-filter] role-taxonomy.yml → …`. Delete the file to revert to `portals.yml`'s `title_filter`. Default behaviour (no taxonomy file) is unchanged.
+
 ## Discovery strategy (4 levels)
 
 ### Level 0 — Local parser (CHEAPEST)

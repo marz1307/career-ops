@@ -100,3 +100,8 @@ If you have a live demo/dashboard (check profile.yml), offer access in applicati
 **In evaluations (scoring):**
 - Remote dimension for hybrid outside your country: score **3.0** (not 1.0)
 - Only score 1.0 if JD says "must be on-site 4-5 days/week, no exceptions"
+
+**Work eligibility / visa:**
+- Your right-to-work facts live in `config/profile.yml → work_eligibility`. Keep them factual there; add any market-specific nuance here.
+- If you need UK visa sponsorship, set `work_eligibility.needs_uk_sponsorship: true`. oferta Step 6 then checks each UK employer against the gov.uk licensed-sponsor register (`sponsor-check.mjs`) — an unlicensed employer cannot sponsor you, so it's a red flag regardless of fit.
+- Never volunteer a future sponsorship need in the application itself; state only your current right to work.
