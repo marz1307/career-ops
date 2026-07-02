@@ -1,6 +1,6 @@
 # CV Quality Rules — local distillation of IDE skill caveats
 
-**Why this file exists.** The IDE-level skills that produced the gold-standard CVs in `generate-pdf-tailored.mjs` — `resume-writer`, `tech-cv-review`, `humanizer`, `recruiter-sim` — don't load under headless `claude -p`. The scheduled `auto-draft` and `auto-eval` routines can't invoke them. This file distils their caveats so the routines can apply the same standards inline.
+**Why this file exists.** The IDE-level skills that produced the gold-standard CVs in `scripts/cv/generate-pdf-tailored.mjs` — `resume-writer`, `tech-cv-review`, `humanizer`, `recruiter-sim` — don't load under headless `claude -p`. The scheduled `auto-draft` and `auto-eval` routines can't invoke them. This file distils their caveats so the routines can apply the same standards inline.
 
 `auto-draft.md` and `auto-eval.md` must **read this file once at start** and apply every rule below to every CV they generate or evaluate.
 
@@ -8,9 +8,9 @@
 
 ## 1. Template authority
 
-The canonical CV format lives in `generate-pdf-tailored.mjs`. It produces variants for the user's archetypes (configured in `_profile.md`).
+The canonical CV format lives in `scripts/cv/generate-pdf-tailored.mjs`. It produces variants for the user's archetypes (configured in `_profile.md`).
 
-**Never re-implement the HTML/CSS structure.** Always shell out to `node generate-pdf-tailored.mjs --variant <v> --lang <l> --out <dir>` with the appropriate flags. The single content model in that file is the source of truth — never duplicate it elsewhere.
+**Never re-implement the HTML/CSS structure.** Always shell out to `node scripts/cv/generate-pdf-tailored.mjs --variant <v> --lang <l> --out <dir>` with the appropriate flags. The single content model in that file is the source of truth — never duplicate it elsewhere.
 
 **Variant selection (auto-draft step 2c):**
 - Map the JD's title to one of the archetypes defined in `modes/_profile.md → Your Adaptive Framing`.
@@ -134,7 +134,7 @@ If predicted rate < baseline by ≥5 percentage points, flag as `[probability_be
 1. **Read this file** (`modes/cv-quality-rules.md`) once at routine start.
 2. **Pick variant + lang** per Section 1.
 3. **Extract keywords** from JD.
-4. **Run** `node generate-pdf-tailored.mjs --variant <v> --lang <l> --out output/cv-drafts/{APP-id}/ --tailor-keywords "<keywords>"`.
+4. **Run** `node scripts/cv/generate-pdf-tailored.mjs --variant <v> --lang <l> --out output/cv-drafts/{APP-id}/ --tailor-keywords "<keywords>"`.
 5. **Self-audit the output** against Sections 2–5 before accepting:
    - Every bullet: XYZ-compliant?
    - Any banned vocabulary (Section 4)?

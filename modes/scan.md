@@ -2,7 +2,7 @@
 
 Scan the configured job portals, filter by title relevance, and add new postings to the pipeline for downstream evaluation.
 
-> **Note (v1.6+):** The default scanner (`scan.mjs` / `npm run scan`) is **zero-token** and uses structured sources: per-company local parsers and the public Greenhouse, Ashby, and Lever APIs. The Playwright / WebSearch levels described below are the **agent flow** (executed by Claude), not what `scan.mjs` itself does. If a company has neither a local parser nor a Greenhouse/Ashby/Lever API, `scan.mjs` will skip it; for those cases the agent should complete Level 1 (Playwright) or Level 3 (WebSearch) manually.
+> **Note (v1.6+):** The default scanner (`scripts/scan/scan.mjs` / `npm run scan`) is **zero-token** and uses structured sources: per-company local parsers and the public Greenhouse, Ashby, and Lever APIs. The Playwright / WebSearch levels described below are the **agent flow** (executed by Claude), not what `scripts/scan/scan.mjs` itself does. If a company has neither a local parser nor a Greenhouse/Ashby/Lever API, `scripts/scan/scan.mjs` will skip it; for those cases the agent should complete Level 1 (Playwright) or Level 3 (WebSearch) manually.
 >
 > **Rule (v1.8+):** If a company's local parser succeeds at Level 0, the agent **must not** repeat it in Playwright (Level 1) or in API (Level 2). At Level 3, generic queries stay active but results from companies already covered by a local parser are discarded. See [Rule: successful local parser — don't repeat expensive scraping](#rule-successful-local-parser--dont-repeat-expensive-scraping).
 
@@ -28,7 +28,7 @@ Read `portals.yml`, which contains:
 - `title_filter`: positive / negative / seniority keywords for title filtering
 - `location_filter`: country / city allow + block lists
 
-**Optional tiered role taxonomy.** The title filter can instead be driven by `config/role-taxonomy.yml` — copy `config/role-taxonomy.example.yml` to enable it. When present, `scan.mjs` derives the filter from it (core + adjacent tiers → positive, exclusions → negative; `watch` tier added only with `node scan.mjs --include-watch`) and logs `[title-filter] role-taxonomy.yml → …`. Delete the file to revert to `portals.yml`'s `title_filter`. Default behaviour (no taxonomy file) is unchanged.
+**Optional tiered role taxonomy.** The title filter can instead be driven by `config/role-taxonomy.yml` — copy `config/role-taxonomy.example.yml` to enable it. When present, `scripts/scan/scan.mjs` derives the filter from it (core + adjacent tiers → positive, exclusions → negative; `watch` tier added only with `node scripts/scan/scan.mjs --include-watch`) and logs `[title-filter] role-taxonomy.yml → …`. Delete the file to revert to `portals.yml`'s `title_filter`. Default behaviour (no taxonomy file) is unchanged.
 
 ## Discovery strategy (4 levels)
 
@@ -81,7 +81,7 @@ Object with `results`:
 }
 ```
 
-`company` is optional; if missing, `scan.mjs` uses the `tracked_companies[].name` entry.
+`company` is optional; if missing, `scripts/scan/scan.mjs` uses the `tracked_companies[].name` entry.
 
 The scanner does not need to keep the full JSON after reading stdout. If a parser also writes an artefact for audit or debug, save it to `data/parser-output/{company}/` and keep it out of git (JSON files in `.gitignore`; `.gitkeep` stays in git to preserve the structure).
 
@@ -98,16 +98,16 @@ During the agent's scan run, maintain a `local_parser_ok` set in memory — name
 | Level | If the company is in `local_parser_ok` |
 |-------|----------------------------------------|
 | **1 — Playwright** | **Skip** — no `browser_navigate` to its `careers_url` (most token-expensive method) |
-| **2 — API** | **Skip** — no WebFetch of its `api:` (already covered by parser; `scan.mjs` also skips the API after a successful parser) |
+| **2 — API** | **Skip** — no WebFetch of its `api:` (already covered by parser; `scripts/scan/scan.mjs` also skips the API after a successful parser) |
 | **3 — WebSearch** | Run **generic** queries (`site:`, role titles); **discard** any hit whose normalised company name matches a `local_parser_ok` entry |
 
 **Exceptions:**
 
-- Parser **failed** → the company is **not** added to `local_parser_ok`; Levels 1 and 2 apply normally (same fallback rule `scan.mjs` uses when the parser fails but an ATS API exists).
+- Parser **failed** → the company is **not** added to `local_parser_ok`; Levels 1 and 2 apply normally (same fallback rule `scripts/scan/scan.mjs` uses when the parser fails but an ATS API exists).
 - Level 3: do not disable cross-portal queries (`site:jobs.ashbyhq.com`, `site:boards.greenhouse.io`, etc.) — they discover **new** companies. Only filter out results from companies already in `tracked_companies` with a successful parser.
 - Do not create dedicated `search_queries` for a company with an active local parser (e.g. `site:jobs.ashbyhq.com/cohere "Analytics Engineer"`); use the parser, or if it fails, Playwright / API.
 
-**Recommended Level 0 start:** run `node scan.mjs` (or `npm run scan`) at the start of the agent workflow. That covers local parsers and APIs in one zero-token pass and reports which companies were covered by `local-parser` successfully.
+**Recommended Level 0 start:** run `node scripts/scan/scan.mjs` (or `npm run scan`) at the start of the agent workflow. That covers local parsers and APIs in one zero-token pass and reports which companies were covered by `local-parser` successfully.
 
 ### Level 1 — Playwright direct (PRIMARY)
 
@@ -181,7 +181,7 @@ The levels are additive — they run in order, results merge and deduplicate. Co
    a. `data/applications.md` (local cache)
    b. `data/pipeline.md` (URL inbox)
    c. **Notion Applications DB** (system of record — query via `notion-search` by `Job URL`)
-8. **Liveness check** (optional, expensive): run `check-liveness.mjs` against the remaining candidates to discard expired postings
+8. **Liveness check** (optional, expensive): run `scripts/scan/check-liveness.mjs` against the remaining candidates to discard expired postings
 9. **Write Notion + pipeline.md** per the "Notion write — Stage 1 (Discovered)" section below.
 
 ## Output summary (at end of scan)

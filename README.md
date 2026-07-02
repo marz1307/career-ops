@@ -120,9 +120,9 @@ Beyond Stage 4 (assessment, phone screen, tech, onsite, offer) is tracked throug
 | Your config | [`config/profile.example.yml`](config/profile.example.yml) + [`modes/_profile.template.md`](modes/_profile.template.md) | Identity, archetypes, scoring weights, comp targets, writing style |
 | Your CV | `cv.md` (created on first run) | Canonical CV in markdown |
 | Proof points | `article-digest.md` (created on first run) | Projects, case studies, deeper evidence than the CV |
-| Portal scanner | [`templates/portals.example.yml`](templates/portals.example.yml) + [`scan.mjs`](scan.mjs) | LinkedIn, Indeed, Glassdoor, Greenhouse, Ashby, Lever, Workable, Welcome to the Jungle, Handshake, Reed UK |
+| Portal scanner | [`templates/portals.example.yml`](templates/portals.example.yml) + [`scripts/scan/scan.mjs`](scripts/scan/scan.mjs) | LinkedIn, Indeed, Glassdoor, Greenhouse, Ashby, Lever, Workable, Welcome to the Jungle, Handshake, Reed UK |
 | Per-JD evaluation | [`modes/oferta.md`](modes/oferta.md) | A–G blocks, comp research, tracker write |
-| PDF generation | [`modes/pdf.md`](modes/pdf.md) + [`generate-pdf.mjs`](generate-pdf.mjs) | A4 always, role-tailored variants |
+| PDF generation | [`modes/pdf.md`](modes/pdf.md) + [`scripts/cv/generate-pdf.mjs`](scripts/cv/generate-pdf.mjs) | A4 always, role-tailored variants |
 | Interview prep | `interview-prep/` (created on first run) | STAR+R stories, company intel, JD-tailored prep |
 | Notion contract | [`modes/notion-tracker.md`](modes/notion-tracker.md) | DB schema, stage transitions, field map |
 | Batch worker | [`batch/batch-prompt.md`](batch/batch-prompt.md) | Self-contained prompt for `claude -p` parallel evaluations |

@@ -200,7 +200,7 @@ Before any A–G block runs, the skill performs a pre-flight check via Playwrigh
 
 These are HARD STOPS. If any check fires, the skill writes nothing — no report, no Notion row, no PDF — and surfaces the mismatch for you to resolve. This is what stops you from ever sitting on a folder full of beautifully tailored CVs pointing at the wrong job.
 
-When all four checks pass, the skill writes a `**Verified:**` block at the top of the report capturing the page title, the company-on-page, the role-on-page, and the JD body length. CI (`test-all.mjs` Check 13) re-reads this block on every push to detect drift between a report's H1 and the verified page facts.
+When all four checks pass, the skill writes a `**Verified:**` block at the top of the report capturing the page title, the company-on-page, the role-on-page, and the JD body length. CI (`scripts/test-all.mjs` Check 13) re-reads this block on every push to detect drift between a report's H1 and the verified page facts.
 
 #### Then the A–G evaluation blocks run
 
@@ -352,20 +352,20 @@ The boundary between "user data the skill must never touch on update" and "syste
 
   ```bash
   cd $WORKSPACE
-  node ~/.claude/skills/career-ops/notion-dashboard.mjs --parent-page <notion-page-url-or-id>
+  node ~/.claude/skills/career-ops/scripts/notion/notion-dashboard.mjs --parent-page <notion-page-url-or-id>
   ```
 
   This calls the official Notion REST API (no MCP dependency) to create the Applications DB with the canonical schema, plus a "📊 Dashboard" child page with three linked-database blocks (Pipeline / By score / Active interviews) you customise in the Notion UI. Writes the new IDs back into your workspace's `config/profile.yml`. Works from bash, Git Bash, PowerShell, and Windows CMD.
 
   Verify an existing DB matches the canonical schema:
   ```bash
-  node ~/.claude/skills/career-ops/notion-dashboard.mjs --check
+  node ~/.claude/skills/career-ops/scripts/notion/notion-dashboard.mjs --check
   ```
 
 ### Scanner returns zero results
 - If you skipped Bright Data, the scanner only hits free ATS endpoints. Check `portals.yml.tracked_companies` has companies with `careers_url` pointing to Greenhouse / Ashby / Lever / Workable boards.
 - Verify `portals.yml.title_filter.positive` has keywords that actually appear in the JDs you're targeting.
-- Run `npm run scan` directly from your workspace to see the raw output (`cd $WORKSPACE && node ~/.claude/skills/career-ops/scan.mjs`).
+- Run `npm run scan` directly from your workspace to see the raw output (`cd $WORKSPACE && node ~/.claude/skills/career-ops/scripts/scan/scan.mjs`).
 
 ### PDF generation fails
 - Playwright sometimes needs a one-time browser install: `cd ~/.claude/skills/career-ops && npx playwright install chromium`.

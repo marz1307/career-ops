@@ -57,7 +57,7 @@ console.log("━".repeat(60));
 // ── pace-alarm.mjs ──────────────────────────────────────────────────
 console.log("\n→ pace-alarm.mjs --json");
 {
-  const r = runNode(["pace-alarm.mjs", "--json"]);
+  const r = runNode(["scripts/metrics/pace-alarm.mjs", "--json"]);
   if (r.status !== 0) {
     fail("pace-alarm", `exit ${r.status}. stderr: ${r.stderr.slice(0, 200)}`);
   } else {
@@ -99,7 +99,7 @@ console.log("\n→ pace-alarm.mjs --json");
 // ── apply-window.mjs (no role/posted) ───────────────────────────────
 console.log("\n→ apply-window.mjs --json");
 {
-  const r = runNode(["apply-window.mjs", "--json"]);
+  const r = runNode(["scripts/metrics/apply-window.mjs", "--json"]);
   if (r.status !== 0) {
     fail("apply-window", `exit ${r.status}. stderr: ${r.stderr.slice(0, 200)}`);
   } else {
@@ -140,7 +140,7 @@ console.log("\n→ apply-window.mjs --json");
 console.log("\n→ apply-window.mjs --role 'Analytics Engineer' --posted 2026-05-20 --json");
 {
   const r = runNode([
-    "apply-window.mjs",
+    "scripts/metrics/apply-window.mjs",
     "--role", "Analytics Engineer",
     "--posted", "2026-05-20",
     "--json",
@@ -165,7 +165,7 @@ console.log("\n→ apply-window.mjs --role 'Analytics Engineer' --posted 2026-05
 console.log("\n→ apply-window.mjs --role 'Analytics Engineer' --posted 2026-01-01 --json (stale)");
 {
   const r = runNode([
-    "apply-window.mjs",
+    "scripts/metrics/apply-window.mjs",
     "--role", "Analytics Engineer",
     "--posted", "2026-01-01",
     "--json",
@@ -190,7 +190,7 @@ console.log("\n→ apply-window.mjs --role 'Analytics Engineer' --posted 2026-01
 // so the oferta Step 6 JSON consumer never breaks on a blank/undisclosed row.
 console.log("\n→ sponsor-check.mjs --company '' --json (graceful empty)");
 {
-  const r = runNode(["sponsor-check.mjs", "--company", "", "--json"]);
+  const r = runNode(["scripts/scan/sponsor-check.mjs", "--company", "", "--json"]);
   if (r.status !== 0) {
     fail("sponsor-check", `exit ${r.status}. stderr: ${r.stderr.slice(0, 200)}`);
   } else {
@@ -208,7 +208,7 @@ console.log("\n→ sponsor-check.mjs --company '' --json (graceful empty)");
 
 // ── syntax guard for new import-only / API modules ──────────────────
 console.log("\n→ node --check on new modules");
-for (const f of ["role-taxonomy.mjs", "cv/cv-qa.mjs", "funnel-metrics.mjs", "caveats-audit.mjs", "providers/smartrecruiters.mjs"]) {
+for (const f of ["scripts/scan/role-taxonomy.mjs", "scripts/cv/cv-qa.mjs", "scripts/metrics/funnel-metrics.mjs", "scripts/metrics/caveats-audit.mjs", "providers/smartrecruiters.mjs"]) {
   const r = runNode(["--check", f]);
   if (r.status !== 0) fail("node-check", `${f}: ${r.stderr.slice(0, 160)}`);
   else pass("node-check", `${f} parses`);

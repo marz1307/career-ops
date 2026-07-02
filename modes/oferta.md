@@ -160,7 +160,7 @@ Set the report/Notion `Visa/sponsorship` field to one of `Required` / `Not requi
 If the candidate needs UK sponsorship AND the role is UK-based, don't guess from company size — a UK employer can only sponsor a Skilled Worker visa if it holds a licence on the gov.uk register. Check it:
 
 ```
-node sponsor-check.mjs --company "<employer name>" --json
+node scripts/scan/sponsor-check.mjs --company "<employer name>" --json
 ```
 
 This matches the employer against the local copy of the gov.uk Register of licensed sponsors (`data/uk-sponsor-register/`, normalised + fuzzy) and returns `match` (high/medium/low/none), `skilledWorker` (holds a Skilled Worker licence), and `recommendedTag`. Apply the result:
@@ -171,7 +171,7 @@ This matches the employer against the local copy of the gov.uk Register of licen
 | `uk-sponsor-route-mismatch` | On register but **not** for Skilled Worker (e.g. only Temporary Worker / GBM) | Licence won't cover a Skilled Worker hire. Treat as a visa risk; tag `uk-sponsor-route-mismatch` and flag in Block G. |
 | `uk-no-sponsor-licence` | Not found (`match` none/low) | Employer likely **cannot sponsor** — treat as the first red flag and **deprioritise** (do not auto-skip unless the candidate has said so). Tag `uk-no-sponsor-licence`. |
 
-On a `medium`/`low` match, eyeball the `best`/`candidates` names — a wrong fuzzy hit on a same-named different entity is possible. The register is a point-in-time snapshot (filename carries the date, echoed in `registerSource`); if it's stale or the index is missing, see `data/uk-sponsor-register/README.md` (download the CSV, then `node sponsor-check.mjs --rebuild`).
+On a `medium`/`low` match, eyeball the `best`/`candidates` names — a wrong fuzzy hit on a same-named different entity is possible. The register is a point-in-time snapshot (filename carries the date, echoed in `registerSource`); if it's stale or the index is missing, see `data/uk-sponsor-register/README.md` (download the CSV, then `node scripts/scan/sponsor-check.mjs --rebuild`).
 
 If `work_eligibility.needs_uk_sponsorship` is false (or the role isn't UK-based), skip this check entirely.
 

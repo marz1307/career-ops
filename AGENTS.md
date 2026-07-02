@@ -42,21 +42,21 @@ AI-powered job search automation built on Claude Code. End-to-end pipeline: scan
 | `templates/cv-template.html` | HTML template for CV rendering. Single-column, ATS-clean. |
 | `templates/cv-template.tex` | LaTeX/Overleaf template (alternative). |
 | `templates/states.yml` | Canonical application states. |
-| `generate-pdf.mjs` | Playwright HTML → PDF renderer. |
-| `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler. |
-| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever/SmartRecruiters APIs directly. |
+| `scripts/cv/generate-pdf.mjs` | Playwright HTML → PDF renderer. |
+| `scripts/cv/generate-latex.mjs` | LaTeX CV validator + pdflatex compiler. |
+| `scripts/scan/scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever/SmartRecruiters APIs directly. |
 | `providers/smartrecruiters.mjs` | Scanner provider for SmartRecruiters-backed careers sites (public Posting API). Auto-loaded; enable per company with `provider: smartrecruiters` + `sr_company` in `portals.yml`. |
-| `sponsor-check.mjs` | UK licensed-sponsor lookup for candidates who need UK sponsorship (`config/profile.yml → work_eligibility.needs_uk_sponsorship`). Matches an employer against the local gov.uk register to tell whether it can sponsor a Skilled Worker visa. Drives the `uk-sponsor-licensed` / `uk-sponsor-route-mismatch` / `uk-no-sponsor-licence` tags in `oferta.md` Step 6. |
-| `role-taxonomy.mjs` | Optional, opt-in title-filter/archetype source. Reads `config/role-taxonomy.yml` (copy from `.example.yml`); absent → scanner uses `portals.yml title_filter`. |
-| `funnel-metrics.mjs` | Real outcome KPIs from the Notion Applications DB (response / screen / rejection rate by portal, country, referral, sponsorship). Needs `NOTION_TOKEN`. |
-| `caveats-audit.mjs` | Zero-LLM lint over generated CVs / cover letters for `cv-quality-rules.md` violations. |
-| `cv/cv-qa.mjs` | LLM post-draft QA over a generated CV vs the JD + `cv-quality-rules.md`. Runs on the Claude subscription via the `claude` CLI (no API key); skips gracefully if the CLI is unavailable. |
-| `check-liveness.mjs` · `liveness-core.mjs` · `liveness-browser.mjs` | Job posting liveness checks. |
-| `merge-tracker.mjs` · `dedup-tracker.mjs` · `normalize-statuses.mjs` · `verify-pipeline.mjs` | Tracker maintenance scripts. |
-| `analyze-patterns.mjs` | Pattern analysis on rejection / response data (JSON output). |
-| `followup-cadence.mjs` | Follow-up cadence calculator (JSON output). |
-| `cv-sync-check.mjs` | Sanity check: cv.md alignment with `profile.yml`. |
-| `doctor.mjs` | Repo health check. |
+| `scripts/scan/sponsor-check.mjs` | UK licensed-sponsor lookup for candidates who need UK sponsorship (`config/profile.yml → work_eligibility.needs_uk_sponsorship`). Matches an employer against the local gov.uk register to tell whether it can sponsor a Skilled Worker visa. Drives the `uk-sponsor-licensed` / `uk-sponsor-route-mismatch` / `uk-no-sponsor-licence` tags in `oferta.md` Step 6. |
+| `scripts/scan/role-taxonomy.mjs` | Optional, opt-in title-filter/archetype source. Reads `config/role-taxonomy.yml` (copy from `.example.yml`); absent → scanner uses `portals.yml title_filter`. |
+| `scripts/metrics/funnel-metrics.mjs` | Real outcome KPIs from the Notion Applications DB (response / screen / rejection rate by portal, country, referral, sponsorship). Needs `NOTION_TOKEN`. |
+| `scripts/metrics/caveats-audit.mjs` | Zero-LLM lint over generated CVs / cover letters for `cv-quality-rules.md` violations. |
+| `scripts/cv/cv-qa.mjs` | LLM post-draft QA over a generated CV vs the JD + `cv-quality-rules.md`. Runs on the Claude subscription via the `claude` CLI (no API key); skips gracefully if the CLI is unavailable. |
+| `scripts/scan/check-liveness.mjs` · `scripts/scan/liveness-core.mjs` · `scripts/scan/liveness-browser.mjs` | Job posting liveness checks. |
+| `scripts/tracker/merge-tracker.mjs` · `scripts/tracker/dedup-tracker.mjs` · `scripts/tracker/normalize-statuses.mjs` · `scripts/tracker/verify-pipeline.mjs` | Tracker maintenance scripts. |
+| `scripts/metrics/analyze-patterns.mjs` | Pattern analysis on rejection / response data (JSON output). |
+| `scripts/metrics/followup-cadence.mjs` | Follow-up cadence calculator (JSON output). |
+| `scripts/cv/cv-sync-check.mjs` | Sanity check: cv.md alignment with `profile.yml`. |
+| `scripts/doctor.mjs` | Repo health check. |
 
 ### Skill modes (slash commands)
 
@@ -134,7 +134,7 @@ The self-contained prompt is in `batch/batch-prompt.md`.
 - JDs in `jds/` (referenced as `local:jds/{file}` in `pipeline.md`).
 - Batch in `batch/` (gitignored except scripts and prompts).
 - Report numbering: sequential 3-digit zero-padded, max existing + 1.
-- **RULE: After each batch of evaluations, run `npm run merge`** (or `node merge-tracker.mjs`) to merge tracker additions and avoid duplications.
+- **RULE: After each batch of evaluations, run `npm run merge`** (or `node scripts/tracker/merge-tracker.mjs`) to merge tracker additions and avoid duplications.
 - **RULE: NEVER create new entries in `applications.md` if `company+role` already exists.** Update the existing entry.
 
 ### TSV format for tracker additions
@@ -156,17 +156,17 @@ Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slu
 8. `report` — markdown link `[num](reports/...)`
 9. `notes` — one-line summary
 
-In `applications.md` the order is reversed (score BEFORE status). `merge-tracker.mjs` handles the column swap.
+In `applications.md` the order is reversed (score BEFORE status). `scripts/tracker/merge-tracker.mjs` handles the column swap.
 
 ### Pipeline integrity
 
-1. **NEVER edit `applications.md` to ADD new entries** — write a TSV in `batch/tracker-additions/` and let `merge-tracker.mjs` handle the merge.
+1. **NEVER edit `applications.md` to ADD new entries** — write a TSV in `batch/tracker-additions/` and let `scripts/tracker/merge-tracker.mjs` handle the merge.
 2. **YES you can edit `applications.md` to UPDATE status / notes of existing entries.**
 3. All reports MUST include `**URL:**` in the header (between Score and PDF). Include `**Legitimacy:** {tier}` (see Block G in `modes/oferta.md`).
 4. All statuses MUST be canonical (see `templates/states.yml`).
-5. Health check: `npm run verify` (or `node verify-pipeline.mjs`).
-6. Normalise statuses: `npm run normalize` (or `node normalize-statuses.mjs`).
-7. Dedup: `npm run dedup` (or `node dedup-tracker.mjs`).
+5. Health check: `npm run verify` (or `node scripts/tracker/verify-pipeline.mjs`).
+6. Normalise statuses: `npm run normalize` (or `node scripts/tracker/normalize-statuses.mjs`).
+7. Dedup: `npm run dedup` (or `node scripts/tracker/dedup-tracker.mjs`).
 
 ### Canonical states (`applications.md`)
 

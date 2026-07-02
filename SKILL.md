@@ -36,7 +36,9 @@ The skill is **self-contained**. After install (`git clone https://github.com/ma
 ├── modes/*.md                        ← mode definitions
 ├── templates/                        ← portal config, CV template, states
 ├── config/profile.example.yml
-├── *.mjs                             ← scan.mjs, generate-pdf.mjs, …
+├── scripts/                          ← node scripts, grouped: scan/ notion/ tracker/ cv/ metrics/ dashboard/
+│   └── scan/scan.mjs, cv/generate-pdf.mjs, …
+├── providers/                        ← scanner provider plugins (greenhouse, ashby, lever, …)
 ├── package.json                      ← node deps (playwright, js-yaml, dotenv)
 └── node_modules/                     ← created by `npm install`
 ```
@@ -62,7 +64,7 @@ The **WORKSPACE** is the directory the user runs `/career-ops` from. That's wher
 **Convention used throughout this skill:**
 - "Read `modes/X.md`" → read from **ENGINE_DIR/modes/X.md**.
 - "Read / write `cv.md` / `config/profile.yml` / `portals.yml` / `data/*` / etc." → operate on the **WORKSPACE** copy.
-- Bash invocations like `node scan.mjs` → `node $ENGINE_DIR/scan.mjs` with cwd = WORKSPACE so the script reads the user's portals.yml and writes to data/.
+- Bash invocations like `node scripts/scan/scan.mjs` → `node $ENGINE_DIR/scripts/scan/scan.mjs` with cwd = WORKSPACE so the script reads the user's portals.yml and writes to data/.
 
 To get ENGINE_DIR, the agent uses the absolute path of this SKILL.md (Read tool resolves it). On most systems it's `${HOME}/.claude/skills/career-ops` (POSIX) or `${USERPROFILE}\.claude\skills\career-ops` (Windows).
 
@@ -348,7 +350,7 @@ Route based on what the user typed AFTER `/career-ops`:
 
 For each mode, read `$ENGINE_DIR/modes/<mode>.md` and follow its instructions. Always read `$ENGINE_DIR/modes/_shared.md` first (system defaults), then `WORKSPACE/modes/_profile.md` (user overrides) before executing.
 
-When a mode tells you to run a script (e.g. `node generate-pdf.mjs`), run it as:
+When a mode tells you to run a script (e.g. `node scripts/cv/generate-pdf.mjs`), run it as:
 
 ```bash
 cd "$WORKSPACE" && node "$ENGINE_DIR/<script>.mjs" <args>

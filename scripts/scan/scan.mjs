@@ -33,7 +33,7 @@ import { pathToFileURL, fileURLToPath } from 'url';
 import path from 'path';
 import yaml from 'js-yaml';
 
-import { makeHttpCtx } from './providers/_http.mjs';
+import { makeHttpCtx } from '../../providers/_http.mjs';
 import { loadTaxonomy, deriveTitleFilter } from './role-taxonomy.mjs';
 
 const parseYaml = yaml.load;
@@ -46,7 +46,7 @@ const PIPELINE_PATH = 'data/pipeline.md';
 const APPLICATIONS_PATH = 'data/applications.md';
 const SCAN_FAILURES_PATH = 'data/scan-failures.json';
 const STALE_THRESHOLD = 3;  // ≥ this many consecutive failures → flagged stale
-const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'providers');
+const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'providers');
 
 // Ensure required directories exist (fresh setup)
 mkdirSync('data', { recursive: true });

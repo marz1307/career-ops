@@ -6,16 +6,16 @@ All scripts live in the project root as `.mjs` modules and are exposed via `npm 
 
 | Command | Script | Purpose |
 |---------|--------|---------|
-| `npm run doctor` | `doctor.mjs` | Validate setup prerequisites |
-| `npm run verify` | `verify-pipeline.mjs` | Check pipeline data integrity |
-| `npm run normalize` | `normalize-statuses.mjs` | Fix non-canonical statuses |
-| `npm run dedup` | `dedup-tracker.mjs` | Remove duplicate tracker entries |
-| `npm run merge` | `merge-tracker.mjs` | Merge batch TSVs into applications.md |
-| `npm run pdf` | `generate-pdf.mjs` | Convert HTML to ATS-optimized PDF |
-| `npm run sync-check` | `cv-sync-check.mjs` | Validate CV/profile consistency |
-| `npm run patterns` | `analyze-patterns.mjs` | Analyze tracker outcomes and report patterns |
-| `npm run liveness` | `check-liveness.mjs` | Test if job URLs are still active |
-| `npm run scan` | `scan.mjs` | Zero-token portal scanner |
+| `npm run doctor` | `scripts/doctor.mjs` | Validate setup prerequisites |
+| `npm run verify` | `scripts/tracker/verify-pipeline.mjs` | Check pipeline data integrity |
+| `npm run normalize` | `scripts/tracker/normalize-statuses.mjs` | Fix non-canonical statuses |
+| `npm run dedup` | `scripts/tracker/dedup-tracker.mjs` | Remove duplicate tracker entries |
+| `npm run merge` | `scripts/tracker/merge-tracker.mjs` | Merge batch TSVs into applications.md |
+| `npm run pdf` | `scripts/cv/generate-pdf.mjs` | Convert HTML to ATS-optimized PDF |
+| `npm run sync-check` | `scripts/cv/cv-sync-check.mjs` | Validate CV/profile consistency |
+| `npm run patterns` | `scripts/metrics/analyze-patterns.mjs` | Analyze tracker outcomes and report patterns |
+| `npm run liveness` | `scripts/scan/check-liveness.mjs` | Test if job URLs are still active |
+| `npm run scan` | `scripts/scan/scan.mjs` | Zero-token portal scanner |
 
 ---
 
@@ -117,13 +117,13 @@ npm run sync-check
 
 ## patterns
 
-Analyzes application outcomes, scores, archetypes, blockers, remote policy, and company size from `data/applications.md` and linked reports. New reports should include `## Machine Summary` YAML; `analyze-patterns.mjs` uses it first and falls back to legacy markdown parsing for older reports.
+Analyzes application outcomes, scores, archetypes, blockers, remote policy, and company size from `data/applications.md` and linked reports. New reports should include `## Machine Summary` YAML; `scripts/metrics/analyze-patterns.mjs` uses it first and falls back to legacy markdown parsing for older reports.
 
 ```bash
 npm run patterns
 npm run patterns -- --summary
 npm run patterns -- --min-threshold 3
-node analyze-patterns.mjs --self-test
+node scripts/metrics/analyze-patterns.mjs --self-test
 ```
 
 **Exit codes:** `0` analysis succeeded, `1` insufficient data or parser self-test failure.
@@ -206,7 +206,7 @@ parser:
 
 Use `args` only for reusable parsers that intentionally accept runtime parameters such as `{careers_url}` or `{company}`.
 
-If a parser writes full extraction artifacts for debugging or audit, store them under `data/parser-output/{company}/`. `scan.mjs` reads stdout and does not require those JSON files after parsing. Keep generated JSON artifacts out of git; `.gitkeep` placeholders are the only exception for preserving directory structure.
+If a parser writes full extraction artifacts for debugging or audit, store them under `data/parser-output/{company}/`. `scripts/scan/scan.mjs` reads stdout and does not require those JSON files after parsing. Keep generated JSON artifacts out of git; `.gitkeep` placeholders are the only exception for preserving directory structure.
 
 ```bash
 npm run scan

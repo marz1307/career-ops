@@ -24,7 +24,7 @@ These files contain your personal data, customizations, and work product. Update
 | `jds/*` | Your saved job descriptions |
 | `data/routine-logs/*` | Headless `claude -p` routine logs (gitignored, machine-generated) |
 | `data/wrapper-trace.log` | One-line-per-invocation trace from the scheduled-routine wrapper (gitignored) |
-| `data/scan-failures.json` | Per-company consecutive-failure ledger for scan.mjs stale-portal detection (gitignored) |
+| `data/scan-failures.json` | Per-company consecutive-failure ledger for scripts/scan/scan.mjs stale-portal detection (gitignored) |
 | `.env` | Local secrets — Notion token, Bright Data API key, etc. (gitignored) |
 
 ## System Layer (safe to auto-update)
@@ -61,7 +61,7 @@ These files contain system logic, scripts, templates, and instructions that impr
 | `fonts/*` | Self-hosted fonts |
 | `.mcp.json` | Project-level MCP server registration (Bright Data via `BRIGHTDATA_API_KEY`) |
 | `routines/*.md` | Self-completing prompts for headless `claude -p` (scans, pace checks) |
-| `test-scripts-smoke.mjs` | Regression smoke test for the core scripts |
+| `scripts/test-scripts-smoke.mjs` | Regression smoke test for the core scripts |
 | `.claude/skills/career-ops/SKILL.md` | Marketplace skill manifest — drives `/career-ops` onboarding |
 | `docs/*` | Documentation |
 | `DATA_CONTRACT.md` | This file |

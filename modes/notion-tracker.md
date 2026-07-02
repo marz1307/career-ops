@@ -222,7 +222,7 @@ Every Notion write triggers a parallel write to `data/applications.md` via the e
 
 1. Career-ops writes to Notion first.
 2. On success, write the equivalent TSV row to `batch/tracker-additions/{id}.tsv`.
-3. Periodically (or on demand), `node merge-tracker.mjs` merges the TSV rows into `applications.md`.
+3. Periodically (or on demand), `node scripts/tracker/merge-tracker.mjs` merges the TSV rows into `applications.md`.
 
 **Order matters.** If the Notion write fails, the TSV write is skipped. Surface the Notion error to the user.
 

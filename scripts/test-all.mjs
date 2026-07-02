@@ -15,11 +15,11 @@
 
 import { execSync, execFileSync } from 'child_process';
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, relative } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = __dirname;
+const ROOT = join(__dirname, '..');
 const QUICK = process.argv.includes('--quick');
 const NODE = process.execPath;
 
@@ -51,7 +51,18 @@ console.log('\n🧪 career-ops marketplace test suite\n');
 
 console.log('1. JS syntax');
 
-const mjsFiles = readdirSync(ROOT).filter(f => f.endsWith('.mjs') && statSync(join(ROOT, f)).isFile());
+function walkMjs(dir) {
+  const out = [];
+  for (const e of readdirSync(dir)) {
+    if (e === 'node_modules' || e === '.git') continue;
+    const full = join(dir, e);
+    const st = statSync(full);
+    if (st.isDirectory()) out.push(...walkMjs(full));
+    else if (e.endsWith('.mjs')) out.push(relative(ROOT, full));
+  }
+  return out;
+}
+const mjsFiles = walkMjs(ROOT);
 for (const f of mjsFiles) {
   const result = run(NODE, ['--check', f]);
   if (result !== null) pass(`${f} parses`);
@@ -132,7 +143,7 @@ const required = [
   'modes/oferta.md', 'modes/pdf.md', 'modes/scan.md', 'modes/apply.md',
   'modes/auto-pipeline.md', 'modes/tracker.md', 'modes/notion-tracker.md',
   'templates/portals.example.yml', 'templates/cv-template.html', 'templates/states.yml',
-  'scan.mjs', 'generate-pdf.mjs',
+  'scripts/scan/scan.mjs', 'scripts/cv/generate-pdf.mjs',
 ];
 for (const f of required) {
   if (fileExists(f)) pass(`exists: ${f}`);
@@ -175,7 +186,7 @@ const allowed = [
   'package.json',    // author field intentionally contains "Marvis Osazuwa (https://github.com/marz1307)"
   'package-lock.json',
   'README.md',       // may mention marz1307 in install commands
-  'test-all.mjs',    // this file lists the patterns
+  'scripts/test-all.mjs', // this file lists the patterns
 ];
 
 let leakFound = 0;
@@ -207,7 +218,7 @@ const credPatterns = [
 let credFound = 0;
 for (const pattern of credPatterns) {
   // Exclude test-all.mjs itself — the patterns above are literals in this file.
-  const result = run(`git grep -nE "${pattern}" -- ':!test-all.mjs' 2>/dev/null`);
+  const result = run(`git grep -nE "${pattern}" -- ':!scripts/test-all.mjs' 2>/dev/null`);
   if (!result) continue;
   for (const line of result.split('\n')) {
     if (line.includes('xxxx')) continue;       // placeholder, fine
@@ -224,7 +235,7 @@ console.log('\n9. Absolute path check');
 // Build the regex from non-literal parts so the source line below doesn't self-match.
 const absPathRegex = ['/Users/', 'marvi', '|/Users/santifer|C:', '\\\\Users\\\\marvi'].join('');
 const absPathResult = run(
-  `git grep -nE "${absPathRegex}" -- '*.mjs' '*.sh' '*.md' '*.yml' ':!test-all.mjs' 2>/dev/null`
+  `git grep -nE "${absPathRegex}" -- '*.mjs' '*.sh' '*.md' '*.yml' ':!scripts/test-all.mjs' 2>/dev/null`
 );
 if (!absPathResult) pass('No personal absolute paths in tracked files');
 else {
@@ -238,7 +249,7 @@ else {
 console.log('\n10. Liveness classifier');
 
 try {
-  const { classifyLiveness } = await import(pathToFileURL(join(ROOT, 'liveness-core.mjs')).href);
+  const { classifyLiveness } = await import(pathToFileURL(join(ROOT, 'scripts/scan/liveness-core.mjs')).href);
 
   const expired = classifyLiveness({
     finalUrl: 'https://example.com/jobs/closed-role',
@@ -264,7 +275,7 @@ try {
 console.log('\n11. Location filter');
 
 try {
-  const { buildLocationFilter } = await import(pathToFileURL(join(ROOT, 'scan.mjs')).href);
+  const { buildLocationFilter } = await import(pathToFileURL(join(ROOT, 'scripts/scan/scan.mjs')).href);
 
   const filter = buildLocationFilter({
     always_allow: ['united kingdom', 'london'],

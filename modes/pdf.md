@@ -89,20 +89,20 @@ Read `modes/_profile.md` → "Writing Style". HARD rules:
 ### Step 11 — Render to PDF
 
 ```bash
-node generate-pdf.mjs \
+node scripts/cv/generate-pdf.mjs \
   /tmp/{CandidateName}_CV_{CompanySlug}_{YYYY-MM-DD}.html \
   output/{CandidateName}_CV_{CompanySlug}_{YYYY-MM-DD}.pdf \
   --format=a4
 ```
 
-When rendering via `generate-pdf-tailored.mjs`, `--role-title "<title>"` overrides the CV tagline for that render only (never edits `cv.md`) — handy when a JD's title differs from your default headline.
+When rendering via `scripts/cv/generate-pdf-tailored.mjs`, `--role-title "<title>"` overrides the CV tagline for that render only (never edits `cv.md`) — handy when a JD's title differs from your default headline.
 
 ### Step 11b — Optional: LLM QA pass
 
 If the Claude CLI is available, QA the rendered CV before accepting it (it runs on your Claude subscription via `claude -p` — no API key):
 
 ```bash
-node cv/cv-qa.mjs --cv <cv.html> --jd-file <jd.txt> --company "<name>" --role-title "<title>"
+node scripts/cv/cv-qa.mjs --cv <cv.html> --jd-file <jd.txt> --company "<name>" --role-title "<title>"
 ```
 
 Exit 0 = pass, 2 = auto-patched, 3 = needs manual work. If the CLI is unavailable it prints a notice and skips (exit 0), and the Step 5 self-audit against `cv-quality-rules.md` remains the fallback.

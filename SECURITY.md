@@ -56,7 +56,7 @@ poltergeist . modes templates config providers batch dashboard .github
 # (skipping node_modules/, output/, data/, reports/)
 ```
 
-The CI does not run Poltergeist; the in-repo `test-all.mjs` Check 8 covers the same surface using a tighter pattern set that excludes vendored code.
+The CI does not run Poltergeist; the in-repo `scripts/test-all.mjs` Check 8 covers the same surface using a tighter pattern set that excludes vendored code.
 
 ### Go stdlib advisories flagged on the dashboard
 

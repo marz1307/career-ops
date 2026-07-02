@@ -33,6 +33,7 @@ import { promisify } from "node:util";
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, '..', '..');
 
 // Countries where a CV photo is a market norm. Override via --with-photo / --no-photo.
 const PHOTO_LANG_COUNTRIES = new Set();
@@ -326,9 +327,9 @@ async function main() {
   if (args.keywords.length) console.log(`🔑 Keywords:  ${args.keywords.join(", ")}`);
   if (args.roleTitle) console.log(`🏷  Role title override: ${args.roleTitle}`);
 
-  const cvText = await readFileAsync(resolve(__dirname, args.cv), "utf8");
-  const templateText = await readFileAsync(resolve(__dirname, "templates/cv-template.html"), "utf8");
-  const profileYml = await readFileAsync(resolve(__dirname, "config/profile.yml"), "utf8");
+  const cvText = await readFileAsync(resolve(REPO_ROOT, args.cv), "utf8");
+  const templateText = await readFileAsync(resolve(REPO_ROOT, "templates/cv-template.html"), "utf8");
+  const profileYml = await readFileAsync(resolve(REPO_ROOT, "config/profile.yml"), "utf8");
 
   const sections = parseCvMd(cvText);
 
@@ -384,7 +385,7 @@ async function main() {
   // ── DE CV: embed photo (base64 so HTML is self-contained) ──
   let photoBlock = "";
   if (args.includePhoto) {
-    const photoPath = resolve(__dirname, "assets", "headshot.jpg");
+    const photoPath = resolve(REPO_ROOT, "assets", "headshot.jpg");
     if (existsSync(photoPath)) {
       const photoB64 = readFileSync(photoPath).toString("base64");
       photoBlock = `<div class="header-photo"><img src="data:image/jpeg;base64,${photoB64}" alt="${name}" /></div>`;
@@ -467,8 +468,8 @@ async function main() {
   await writeFileAsync(tmpHtml, html, "utf8");
   console.log(`📝 Tailored HTML written to: ${tmpHtml}`);
 
-  mkdirSync(resolve(__dirname, "output"), { recursive: true });
-  const outputPdf = resolve(__dirname, "output", `${baseName}.pdf`);
+  mkdirSync(resolve(REPO_ROOT, "output"), { recursive: true });
+  const outputPdf = resolve(REPO_ROOT, "output", `${baseName}.pdf`);
 
   console.log("🎨 Rendering PDF via generate-pdf.mjs...");
   await new Promise((resolveP, rejectP) => {

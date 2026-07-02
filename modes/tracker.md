@@ -30,7 +30,7 @@ If the user asks to update a status, edit the corresponding row in both Notion (
 - **Volume:** total applications, by state, applied this week, applied this month
 - **Quality:** average Match score (Notion field), average Recruiter-sim verdict distribution (INVITE / MAYBE / REJECT %)
 - **Coverage:** % of rows with PDF generated, % with report generated, % with Notion row
-- **Pace vs target:** applied/day for the last 7 days, vs the 29/day target (≥200/week). Flag if pace < 25/day for 2+ consecutive days (the pace alarm — see `pace-alarm.mjs`).
+- **Pace vs target:** applied/day for the last 7 days, vs the 29/day target (≥200/week). Flag if pace < 25/day for 2+ consecutive days (the pace alarm — see `scripts/metrics/pace-alarm.mjs`).
 - **Tier-1 distribution:** how many of the active pipeline are at tier-1 companies (the tier-1 targets in `portals.yml`)
 - **Funnel:** Discovered → Triaged → Drafted → Applied → Interview → Offer (counts and conversion rates)
 
