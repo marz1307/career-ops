@@ -93,7 +93,7 @@ function stripGenderMarker(s) {
   if (!s) return s;
   return s
     // Decode common HTML entities that leak in from scraped titles (& < > ' ").
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&')
     .replace(/\s*[\(\[]\s*(?:(?:[mwfdxiagn]|divers|gn)(?:\s*[\/|·]\s*(?:[mwfdxiagn]|divers|gn))+|all\s+genders?|gender[-\s]?neutral|geschlechtsneutral|gn|divers)\s*[\)\]]/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim();

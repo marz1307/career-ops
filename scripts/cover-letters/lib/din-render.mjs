@@ -26,7 +26,9 @@ if (!inPath || !outPath) { console.error('Usage: --in <md> --out <html>'); proce
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const inlineMd = (s) => escapeHtml(s).replace(/\*\*([^\n]+?)\*\*/g, '<strong>$1</strong>');
 
-let md = readFileSync(inPath, 'utf8').replace(/<!--[\s\S]*?-->/g, '').trim();
+let md = readFileSync(inPath, 'utf8');
+while (md.includes('<!--')) md = md.replace(/<!--[\s\S]*?-->/g, '');
+md = md.trim();
 // Em dashes (—) read as AI-written; collapse "word — word" to "word, word".
 // German en-dash Gedankenstrich (–) is correct typography and left untouched.
 md = md.replace(/\s*—\s*/g, ', ');

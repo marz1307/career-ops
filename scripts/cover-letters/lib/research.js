@@ -7,7 +7,7 @@
 // A "concrete fact" has: specific noun + verb + scope. Vague marketing
 // language ("they value data quality", "fast-growing scaleup") is rejected.
 'use strict';
-const { execSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -28,7 +28,7 @@ function firecrawl(url, opts = {}) {
     try { return JSON.parse(fs.readFileSync(cache, 'utf8')); } catch {}
   }
   try {
-    const buf = execSync(`firecrawl scrape "${url}" --wait-for 4000 --format markdown,html`, {
+    const buf = execFileSync('firecrawl', ['scrape', url, '--wait-for', '4000', '--format', 'markdown,html'], {
       env: { ...process.env, FIRECRAWL_API_URL: FC_URL },
       timeout: FETCH_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024,
     });
@@ -248,7 +248,7 @@ async function research({ jobUrl, companyUrl, roleHint, appId, companyHint }) {
 
   // Extract title — try h1, then og:title, then <title>, then first markdown ##
   const h1 = (jd.html || '').match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-  if (h1) brief.job_title = h1[1].replace(/<[^>]+>/g, '').trim().slice(0, 200);
+  if (h1) brief.job_title = h1[1].replace(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi, '').trim().slice(0, 200);
   if (!brief.job_title) {
     const og = (jd.html || '').match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
     if (og) brief.job_title = og[1].trim().slice(0, 200);

@@ -183,7 +183,7 @@ function whyCompany({ brief, factsPicked }) {
   }
   const f1 = factsPicked[0];
   // Sentence 1: the specific fact (cleaned of trailing period for joining)
-  const s1 = f1.fact.replace(/\.$/, '.').trim();
+  const s1 = f1.fact.replace(/\.$/, '').trim() + '.';
   // Sentence 2: connect to CV evidence (production work — read from cv.md)
   const s2 = `That overlaps directly with my production experience: building data layers end to end, with internal product surfaces alongside the warehouse and CI-gated correctness throughout.`;
   // Sentence 3 (optional): second concrete fact, as its own sentence

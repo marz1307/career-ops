@@ -11,7 +11,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const { execSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 const { research } = require('./lib/research');
 const { match } = require('./lib/match');
 const { compose: composeV2 } = require('./lib/draft-v2');
@@ -57,7 +57,7 @@ function renderAndUpload(mdPath, pageId, notionProperty) {
   const tmpHtml = mdPath.replace(/\.md$/, '.tmp.html');
   // Render
   try {
-    execSync(`node scripts/cover-letters/lib/md-to-pdf.mjs --in "${mdPath}" --out "${pdfPath}"`, {
+    execFileSync(process.execPath, ['scripts/cover-letters/lib/md-to-pdf.mjs', '--in', mdPath, '--out', pdfPath], {
       cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'], timeout: 60000,
     });
   } catch (e) {
@@ -66,7 +66,7 @@ function renderAndUpload(mdPath, pageId, notionProperty) {
   }
   // Upload (replace mode — single-file array)
   try {
-    execSync(`node scripts/notion/notion-upload-file.mjs --file "${pdfPath}" --page "${pageId}" --property "${notionProperty}"`, {
+    execFileSync(process.execPath, ['scripts/notion/notion-upload-file.mjs', '--file', pdfPath, '--page', pageId, '--property', notionProperty], {
       cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'], timeout: 60000, maxBuffer: 10 * 1024 * 1024,
     });
     // Success: clean up .md and .tmp.html (unless --keep-md was passed for post-upload cv-qa)
@@ -85,7 +85,7 @@ function renderOnly(mdPath) {
   const pdfPath = mdPath.replace(/\.md$/, '.pdf');
   const tmpHtml = mdPath.replace(/\.md$/, '.tmp.html');
   try {
-    execSync(`node scripts/cover-letters/lib/md-to-pdf.mjs --in "${mdPath}" --out "${pdfPath}"`, {
+    execFileSync(process.execPath, ['scripts/cover-letters/lib/md-to-pdf.mjs', '--in', mdPath, '--out', pdfPath], {
       cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'], timeout: 60000,
     });
     if (!KEEP_MD) { try { fs.unlinkSync(mdPath); } catch {} }

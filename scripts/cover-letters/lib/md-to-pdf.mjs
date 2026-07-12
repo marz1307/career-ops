@@ -21,7 +21,8 @@ const LETTERS_DIR = join(ROOT, 'output', 'cover-letters');
 
 function wrapHTML(md) {
   // Strip HTML comments (audit footer) before render
-  md = md.replace(/<!--[\s\S]*?-->/g, '').trim();
+  while (md.includes('<!--')) md = md.replace(/<!--[\s\S]*?-->/g, '');
+  md = md.trim();
   // Em dashes (—) read as AI-written and are banned in the house style; collapse
   // any "word — word" into "word, word". (German en-dash – is left untouched.)
   md = md.replace(/\s*—\s*/g, ', ');
