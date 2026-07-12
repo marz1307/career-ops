@@ -226,7 +226,7 @@ These rules apply to ALL generated text that ends up in candidate-facing documen
 - "demonstrated ability to" / "best practices" (name the practice)
 
 ### Unicode normalization for ATS
-`scripts/cv/generate-pdf.mjs` automatically normalizes em-dashes, smart quotes, and zero-width characters to ASCII equivalents for maximum ATS compatibility. But avoid generating them in the first place.
+`generate-pdf.mjs` automatically normalizes em-dashes, smart quotes, and zero-width characters to ASCII equivalents for maximum ATS compatibility. But avoid generating them in the first place.
 
 ### Vary sentence structure
 - Don't start every bullet with the same verb

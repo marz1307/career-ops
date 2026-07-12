@@ -2,12 +2,12 @@
 /**
  * funnel-metrics.mjs — Real outcome metrics for career-ops
  *
- * A complement to "Match score". Match score measures how well a JD fits the
- * candidate profile — it carries NO employer signal and does not, on its own,
- * predict outcomes (it's common to see rejected applications average a HIGHER
- * match score than the pipeline as a whole). The metrics that actually debug a
- * job search are response rate and screen rate, sliced by the levers you
- * control: source portal, country, referral, and sponsorship.
+ * Replaces "Match score" as the headline KPI. Match score measures how well
+ * a JD fits the candidate's profile — it has NO employer signal and does not predict
+ * outcomes (observed 2026-06: rejected applications averaged a HIGHER match
+ * score than the pipeline as a whole). The only metrics that debug a job
+ * search are response rate and screen rate, sliced by the levers you control:
+ * source portal, country, referral, and sponsorship.
  *
  * Pulls every Applications row from Notion via REST (same auth + config as
  * notion-query.mjs) and computes:
@@ -53,14 +53,16 @@ function loadConfig() {
   catch { return {}; }
 }
 const CFG = loadConfig();
-// Same key + fallback as notion-query.mjs: /v1/databases/{id}/query expects the
-// *database* UUID. Set notion.applications_database_id in config/profile.yml.
 const DATABASE_ID =
-  (CFG.notion && CFG.notion.applications_database_id) ||
-  "eace68a2-e454-4a6d-ab9d-ed5dfcd65c72";
+  process.env.NOTION_DATABASE_ID ||
+  (CFG.notion && CFG.notion.applications_database_id);
+if (!DATABASE_ID) {
+  console.error("ROUTINE_ABORT: No Notion database ID configured — set NOTION_DATABASE_ID env var or notion.applications_database_id in config/profile.yml");
+  process.exit(5);
+}
 const ENDPOINT = `https://api.notion.com/v1/databases/${DATABASE_ID}/query`;
 
-// --- Stage taxonomy (mirrors the Notion Stage select in notion-tracker.md) ---
+// --- Stage taxonomy (mirrors the Notion Stage select) -----------------------
 const APPLIED_STAGES = [
   "4. Applied", "5. Assessment/OA", "6. Phone screen",
   "7. Tech interview", "8. Onsite/Final", "9. Offer", "Signed", "Rejected",
@@ -100,21 +102,12 @@ function row(page) {
   const sel = n => (p[n] && p[n].type === "select" ? p[n].select?.name ?? null : null);
   const dat = n => (p[n] && p[n].type === "date" ? p[n].date?.start ?? null : null);
   const num = n => (p[n] && p[n].type === "number" ? p[n].number : null);
-  // Referral? is a checkbox in the canonical schema (notion-tracker.md), but
-  // tolerate a select too in case a workspace modelled it that way.
-  const referral = () => {
-    const f = p["Referral?"];
-    if (!f) return null;
-    if (f.type === "checkbox") return f.checkbox ? "Referral" : "No referral";
-    if (f.type === "select") return f.select?.name ?? null;
-    return null;
-  };
   return {
     company: extractTitle(p),
     stage: sel("Stage"),
     apply_date: dat("Apply date"),
     response_date: dat("Response date"),
-    referral: referral(),
+    referral: sel("Referral?"),
     portal: sel("Source portal"),
     country: sel("Country"),
     sponsorship: sel("Visa/sponsorship"),
@@ -193,7 +186,7 @@ async function main() {
     silent_no_response: ghosted,
   };
 
-  // Match-score reality check — shows whether the metric predicts outcomes.
+  // Match-score reality check — proves the metric is non-predictive.
   const match_score_check = {
     avg_score_progressed: avg(cohort.filter(progressed).map(r => r.match_score)),
     avg_score_rejected: avg(cohort.filter(rejected).map(r => r.match_score)),
