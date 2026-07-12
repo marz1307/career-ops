@@ -23,11 +23,11 @@
  * Scheduled: 17:00 UK weekdays via `CareerOps_PaceCheck` Task Scheduler
  * entry. The wrapper validates the emitted ROUTINE_CONTRACT block.
  *
- * NOTE: reads the local-cache (applications.md) not Notion directly. The
- * cache is intended to be parallel-write by `modes/apply.md` when the user
- * submits applications; if Cowork side hasn't been wired, the cache will
- * stay empty and pace-alarm will surface a stale-cache warning instead
- * of a false alarm.
+ * Data source: Notion Applications DB (system of record) via REST when
+ * NOTION_TOKEN is set — counts rows whose `Apply date` falls in the last
+ * 7 days. Falls back to the local cache (data/applications.md) when the
+ * token is missing or the API call fails; in fallback mode the old
+ * stale-cache downgrade logic applies unchanged.
  */
 
 import { readFileSync, statSync, existsSync } from "node:fs";
@@ -76,6 +76,54 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// ── Notion direct read (preferred) ──────────────────────────────────
+// Same REST pattern as funnel-metrics.mjs. Only rows with an Apply date
+// in the last 8 days are fetched (server-side filter), so the query is
+// a single page in practice.
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const NOTION_DATABASE_ID =
+  process.env.NOTION_DATABASE_ID ||
+  (CONFIG.notion && CONFIG.notion.applications_database_id);
+if (!NOTION_DATABASE_ID && NOTION_TOKEN) {
+  console.error("Warning: No Notion database ID configured — set NOTION_DATABASE_ID env var or notion.applications_database_id in config/profile.yml. Notion reads will be skipped.");
+}
+
+async function fetchNotionApplyRows() {
+  if (!NOTION_TOKEN) return { rows: null, error: "NOTION_TOKEN not set" };
+  if (!NOTION_DATABASE_ID) return { rows: null, error: "NOTION_DATABASE_ID not configured" };
+  const endpoint = `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`;
+  const rows = [];
+  let cursor = null;
+  try {
+    do {
+      const body = {
+        page_size: 100,
+        filter: { property: "Apply date", date: { on_or_after: daysAgo(8) } },
+      };
+      if (cursor) body.start_cursor = cursor;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${NOTION_TOKEN}`,
+          "Notion-Version": "2022-06-28",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`Notion API ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const data = await res.json();
+      for (const page of data.results || []) {
+        const d = page.properties?.["Apply date"]?.date?.start;
+        if (d) rows.push({ date: d.slice(0, 10), status: "applied" });
+      }
+      cursor = data.has_more ? data.next_cursor : null;
+    } while (cursor);
+    return { rows, error: null };
+  } catch (e) {
+    return { rows: null, error: e.message };
+  }
+}
+
 function daysAgo(n) {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - n);
@@ -87,12 +135,6 @@ function parseApplicationsMd(path) {
   try {
     text = readFileSync(path, "utf8");
   } catch (e) {
-    // A missing cache is not an error — the file is a local mirror that
-    // apply.md writes on the first submit. Treat "never written yet" as an
-    // empty dataset so pace surfaces a stale-cache warning (per this file's
-    // header) rather than a hard exit-1 false alarm. checkStaleness() already
-    // flags the absence. Any OTHER read failure (permissions, etc.) is fatal.
-    if (e.code === "ENOENT") return { rows: [] };
     return { rows: [], error: `Cannot read ${path}: ${e.message}` };
   }
   // Find the table rows. Format:
@@ -288,18 +330,33 @@ function emitContractBlock(result, staleness) {
   console.log(lines.join("\n"));
 }
 
-function main() {
-  const staleness = checkStaleness();
-  const { rows, error } = parseApplicationsMd(APPLICATIONS_PATH);
-  if (error) {
-    const result = { status: "error", error, cache_staleness: staleness };
-    console.log(JSON.stringify(result, null, 2));
-    process.exit(1);
+async function main() {
+  // Prefer Notion (system of record); fall back to the local cache.
+  const notion = await fetchNotionApplyRows();
+  let rows, staleness, dataSource;
+  if (notion.rows !== null) {
+    rows = notion.rows;
+    dataSource = "notion";
+    staleness = { stale: false, reason: null, mtime_iso: "notion-live", hours_since_mtime: 0 };
+  } else {
+    dataSource = "local-cache";
+    staleness = checkStaleness();
+    staleness.reason = staleness.reason
+      ? `${staleness.reason} [Notion read failed: ${notion.error}]`
+      : `[Notion read failed: ${notion.error}]`;
+    const parsed = parseApplicationsMd(APPLICATIONS_PATH);
+    if (parsed.error) {
+      const result = { status: "error", error: parsed.error, notion_error: notion.error, cache_staleness: staleness };
+      console.log(JSON.stringify(result, null, 2));
+      process.exit(1);
+    }
+    rows = parsed.rows;
   }
 
   const counts = countAppliedByDate(rows);
   const window7 = rollingWindow(counts, 7);
   const result = evaluate(window7);
+  result.data_source = dataSource;
   result.cache_staleness = staleness;
   result.window_adherence = computeWindowAdherence(rows);
 

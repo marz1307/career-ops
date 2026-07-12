@@ -39,7 +39,8 @@ function loadConfig() {
   try { return yaml.load(readFileSync(path, "utf8")) || {}; } catch { return {}; }
 }
 const CFG = loadConfig();
-const DATABASE_ID = (CFG.notion && CFG.notion.applications_database_id) || "eace68a2-e454-4a6d-ab9d-ed5dfcd65c72";
+const DATABASE_ID = (CFG.notion && CFG.notion.applications_database_id) || process.env.NOTION_DATABASE_ID;
+if (!DATABASE_ID) { console.error('No Notion database ID. Set notion.applications_database_id in config/profile.yml or NOTION_DATABASE_ID env var.'); process.exit(1); }
 
 async function queryAll(filter = null) {
   const all = [];
@@ -160,7 +161,7 @@ function summarise(rows) {
 function readWrapperTrace() {
   const p = "data/wrapper-trace.log";
   if (!existsSync(p)) return { available: false, exits: [] };
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "-");
+  const today = new Date().toISOString().slice(0, 10);
   const todayShort = new Date().toLocaleDateString("en-GB").split("/").reverse().join("-");
   const lines = readFileSync(p, "utf8").split("\n").filter(Boolean);
   const exitsToday = lines
@@ -189,7 +190,7 @@ function readScanFailures() {
 
 function readPaceSummary() {
   // Run pace-alarm --json and parse the contract block; cheap (no LLM, no network).
-  const r = spawnSync("node", ["pace-alarm.mjs", "--json"], { encoding: "utf8" });
+  const r = spawnSync("node", ["scripts/metrics/pace-alarm.mjs", "--json"], { encoding: "utf8" });
   if (r.status !== 0) return null;
   try {
     // The script emits JSON then the contract block; grab the JSON object.

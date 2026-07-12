@@ -12,10 +12,10 @@
  */
 
 import { readFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const CAREER_OPS = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const CAREER_OPS = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
   ? join(CAREER_OPS, 'data/applications.md')
   : join(CAREER_OPS, 'applications.md');

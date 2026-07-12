@@ -348,7 +348,7 @@ Save full evaluation in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`.
 **Step 2a — Notion write (PRIMARY).**
 
 1. Run `notion-search` on the Applications DB filtered by `Job URL = {url}`. Dedup key.
-2. If a row exists → `notion-update-page`. If not → `notion-create-pages` against data source `fdc232c2-3c9b-4311-a80b-5f09698c3819`.
+2. If a row exists → `notion-update-page`. If not → `notion-create-pages` against the data source ID configured in `config/profile.yml → notion.data_source_id`.
 3. Fields to write on UPSERT:
    - `Job URL` (the canonical posting URL — required, dedup key)
    - `Company` (title)
