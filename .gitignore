@@ -80,6 +80,7 @@ bun.lock
 .claude/settings.local.json
 .claude/memory/
 career-dashboard
+.test-dashboard-build
 package-lock.json
 # CV generator outputs
 cv/output/

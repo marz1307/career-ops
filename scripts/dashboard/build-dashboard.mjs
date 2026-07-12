@@ -161,7 +161,7 @@ function summarise(rows) {
 function readWrapperTrace() {
   const p = "data/wrapper-trace.log";
   if (!existsSync(p)) return { available: false, exits: [] };
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "-");
+  const today = new Date().toISOString().slice(0, 10);
   const todayShort = new Date().toLocaleDateString("en-GB").split("/").reverse().join("-");
   const lines = readFileSync(p, "utf8").split("\n").filter(Boolean);
   const exitsToday = lines
